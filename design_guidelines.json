@@ -1,0 +1,168 @@
+{
+  "identity": {
+    "name": "AgriSmart",
+    "persona": "E1: The Anti-AI Designer",
+    "archetype": "Organic & Earthy (Archetype 1) + High-Tech Precision",
+    "vibe": "Grounded, Intelligent, Trustworthy, Growth-oriented",
+    "principles": [
+      "Fusion over Imitation: Mix botanical aesthetics with precision data dashboards.",
+      "Emotion First: Farmers need trust and clarity. Design for confidence.",
+      "Content is King: Data is the story. Make it readable and actionable.",
+      "Zoom In: Focus on the details of the crop and the data point.",
+      "Negative Space: Don't clutter the dashboard. Let the data breathe."
+    ]
+  },
+  "typography": {
+    "headings": {
+      "font_family": "Outfit, sans-serif",
+      "weights": ["500", "700"],
+      "usage": "All section headers, hero titles, card titles. DO NOT use Inter.",
+      "letter_spacing": "tracking-tight"
+    },
+    "body": {
+      "font_family": "Inter, sans-serif",
+      "weights": ["400", "500"],
+      "usage": "Paragraphs, data tables, labels, inputs.",
+      "letter_spacing": "tracking-normal"
+    },
+    "mono": {
+      "font_family": "JetBrains Mono, monospace",
+      "usage": "Sensor raw values, API keys, code snippets."
+    },
+    "installation": "Import fonts in index.css via Google Fonts: @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap');"
+  },
+  "colors": {
+    "theme_strategy": "Hybrid (Light Mode Default for Field Visibility, Dark Mode Toggle for Night Monitoring)",
+    "palette": {
+      "primary": {
+        "DEFAULT": "#2F5D41",
+        "foreground": "#FFFFFF",
+        "description": "Deep Forest Green - Trust, Growth"
+      },
+      "secondary": {
+        "DEFAULT": "#E8F3E8",
+        "foreground": "#2F5D41",
+        "description": "Pale Mint - Backgrounds, Soft UI"
+      },
+      "accent": {
+        "DEFAULT": "#D97706",
+        "foreground": "#FFFFFF",
+        "description": "Amber/Earth - Warnings, Action, Harvest"
+      },
+      "background": {
+        "light": "#F9FAF8",
+        "dark": "#0A0C0A"
+      },
+      "surface": {
+        "light": "#FFFFFF",
+        "dark": "#141614"
+      },
+      "charts": {
+        "moisture": "#3B82F6",
+        "temp": "#EF4444",
+        "humidity": "#10B981",
+        "price": "#8B5CF6"
+      }
+    },
+    "forbidden_colors": ["#7351B7", "#1B93A4"]
+  },
+  "layout_system": {
+    "spacing": {
+      "scale": "p-1, p-2, p-4, p-6, p-8, p-12, p-16, p-20, p-24, p-32",
+      "rule": "Use 2-3x more spacing than typical. Containers with borders MUST have p-6 or p-8."
+    },
+    "grids": {
+      "landing_page": {
+        "mode": "MODE A: THE TETRIS GRID",
+        "cols": "grid-cols-1 md:grid-cols-8 lg:grid-cols-12",
+        "gap": "gap-8 lg:gap-12",
+        "rules": "Asymmetry is key. Use col-span-full for hero, col-span-4 for features. Never fill 100% perfectly."
+      },
+      "dashboard": {
+        "mode": "MODE B: HIGH DENSITY GRID",
+        "cols": "grid-cols-1 md:grid-cols-3 lg:grid-cols-4",
+        "gap": "gap-4 or gap-6",
+        "rules": "Every pixel utilized. Use h-full on children. No jagged bottoms."
+      }
+    },
+    "containers": {
+      "marketing": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+      "dashboard": "w-full px-4 sm:px-6 lg:px-8 py-6"
+    }
+  },
+  "components": {
+    "strategy": "Hybrid",
+    "marketing_components": {
+      "structure": "Raw HTML + Tailwind (div, section, span)",
+      "interactive": "Shadcn (heavily customized)",
+      "style": "Glassmorphism or 'Tracing Beam' borders for feature cards."
+    },
+    "dashboard_components": {
+      "structure": "Shadcn Cards, Tables, Dialogs",
+      "style": "Neumorphism (Tactile) or Grid Borders (Technical). Clean, crisp edges.",
+      "charts": "Chart.js (via react-chartjs-2) wrapped in Shadcn Cards."
+    },
+    "specific_overrides": {
+      "buttons": "Pill-shaped for marketing, slightly rounded (rounded-md) for dashboard controls.",
+      "cards": "Remove default shadows, use 1px borders with subtle colors. Add hover lift.",
+      "inputs": "Shadcn Input with 'h-12' for better touch targets on tablets."
+    }
+  },
+  "visual_enhancers": {
+    "textures": "Add subtle grain/noise overlay to the background to reduce 'digital flatness'.",
+    "glassmorphism": "Use backdrop-blur-xl with backdrop-saturate-150 for overlays and sticky headers.",
+    "motion": {
+      "library": "Framer Motion",
+      "types": [
+        "Hover: scale-105",
+        "Entrance: Staggered fade-in-up",
+        "Transition: Smooth layout changes (layout prop)"
+      ]
+    },
+    "icons": "Lucide React (default). Use stroke-width={1.5} for elegance."
+  },
+  "assets": {
+    "images": {
+      "hero_bg": {
+        "url": "https://images.unsplash.com/photo-1738598665698-7fd7af4b5e0c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NjZ8MHwxfHNlYXJjaHwxfHxzbWFydCUyMGZhcm1pbmclMjBpcnJpZ2F0aW9uJTIwc3lzdGVtJTIwZmllbGR8ZW58MHx8fHwxNzY5NzY2Mjg4fDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Smart irrigation sprinklers in a field",
+        "usage": "Hero section background or main visual"
+      },
+      "farmer_tech": {
+        "url": "https://images.pexels.com/photos/4453098/pexels-photo-4453098.jpeg",
+        "alt": "Farmer using tablet in field",
+        "usage": "Feature section or 'How it works' visual"
+      },
+      "crops": {
+        "wheat": "https://images.unsplash.com/photo-1701582016004-0bb81764225b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHw0fHx3aGVhdCUyMGNvcm4lMjByaWNlJTIwc295YmVhbiUyMGNyb3BzfGVufDB8fHx8MTc2OTc2NjI5Mnww&ixlib=rb-4.1.0&q=85",
+        "corn": "https://images.unsplash.com/photo-1704627647734-61e38adedc4d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwzfHx3aGVhdCUyMGNvcm4lMjByaWNlJTIwc295YmVhbiUyMGNyb3BzfGVufDB8fHx8MTc2OTc2NjI5Mnww&ixlib=rb-4.1.0&q=85",
+        "rice": "https://images.unsplash.com/photo-1752424564550-dbada9062781?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwyfHx3aGVhdCUyMGNvcm4lMjByaWNlJTIwc295YmVhbiUyMGNyb3BzfGVufDB8fHx8MTc2OTc2NjI5Mnww&ixlib=rb-4.1.0&q=85"
+      }
+    }
+  },
+  "tech_stack_specifics": {
+    "charts": "react-chartjs-2 + chart.js (MANDATORY per requirements)",
+    "animations": "framer-motion",
+    "icons": "lucide-react",
+    "toast": "sonner",
+    "backend_integration": "FastAPI (ensure CORS is handled)",
+    "iot_integration": "ThingSpeak API (REST)"
+  },
+  "instructions_to_main_agent": [
+    "1. INSTALLATION: Run 'npm install react-chartjs-2 chart.js framer-motion lucide-react' immediately.",
+    "2. FONTS: Add the Google Fonts import to index.css first.",
+    "3. THEME: Update tailwind.config.js with the specific color palette provided.",
+    "4. LAYOUT: Build the Landing Page using the 'Tetris Grid' and Dashboard using 'High Density Grid'.",
+    "5. COMPONENTS: Use Shadcn for complex interactions (Dialogs, Forms) but style them to match the 'Organic & Earthy' theme.",
+    "6. CHARTS: Implement the Commodity Price Prediction using Line Charts with confidence bands (filled area).",
+    "7. TESTING: Add data-testid to all interactive elements (buttons, inputs, cards)."
+  ],
+  "universal_guidelines": [
+    "Avoid 'AI Slop' - no generic centered layouts.",
+    "Use 2-3x more spacing than comfortable.",
+    "Dark colors must be solid, not gradients.",
+    "Glassmorphism requires backdrop-blur-xl.",
+    "No 'transition: all'.",
+    "Every interaction needs a micro-animation."
+  ]
+}
