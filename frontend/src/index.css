@@ -19,25 +19,25 @@ code {
 
 @layer base {
     :root {
-        --background: 249 250 248;
-        --foreground: 47 93 65;
+        --background: 95 30% 97%;
+        --foreground: 150 35% 27%;
         --card: 0 0% 100%;
-        --card-foreground: 47 93 65;
+        --card-foreground: 150 35% 27%;
         --popover: 0 0% 100%;
-        --popover-foreground: 47 93 65;
-        --primary: 47 93 65;
+        --popover-foreground: 150 35% 27%;
+        --primary: 150 35% 27%;
         --primary-foreground: 0 0% 98%;
-        --secondary: 232 243 232;
-        --secondary-foreground: 47 93 65;
+        --secondary: 120 50% 92%;
+        --secondary-foreground: 150 35% 27%;
         --muted: 0 0% 96.1%;
         --muted-foreground: 0 0% 45.1%;
-        --accent: 217 119 6;
+        --accent: 30 93% 44%;
         --accent-foreground: 0 0% 98%;
         --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 0 0% 98%;
         --border: 0 0% 89.8%;
         --input: 0 0% 89.8%;
-        --ring: 47 93 65;
+        --ring: 150 35% 27%;
         --radius: 0.5rem;
     }
 }
