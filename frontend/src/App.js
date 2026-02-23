@@ -71,6 +71,11 @@ function App() {
   const [priceData, setPriceData] = useState(null);
   const [loadingPrice, setLoadingPrice] = useState(false);
 
+  // AI Analysis state
+  const [agriAnalysis, setAgriAnalysis] = useState(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [showDetailedAnalysis, setShowDetailedAnalysis] = useState(false);
+
   const pollIntervalRef = useRef(null);
 
   // Demo mode simulation
