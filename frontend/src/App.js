@@ -794,10 +794,10 @@ function App() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-outfit font-bold text-primary mb-4">
-              Hardware Setup Guide
+              IoT Hardware Setup
             </h2>
             <p className="text-base text-foreground/70">
-              Follow these steps to set up your IoT monitoring system
+              Deploy your own sensor network in 4 simple steps
             </p>
           </div>
 
@@ -805,27 +805,27 @@ function App() {
             {[
               {
                 step: "1",
-                title: "Create ThingSpeak Channel",
+                title: "Create IoT Channel",
                 description:
-                  "Sign up on ThingSpeak.com and create a new channel with 4 fields: Moisture, Temperature, Humidity, Rain",
+                  "Register on ThingSpeak.com and create a channel with 4 data fields for sensor readings",
               },
               {
                 step: "2",
-                title: "Upload ESP32 Code",
+                title: "Flash Microcontroller",
                 description:
-                  "Flash your ESP32/NodeMCU with the sensor reading code and ThingSpeak API integration",
+                  "Upload sensor code to ESP32/NodeMCU with WiFi credentials and ThingSpeak write key",
               },
               {
                 step: "3",
                 title: "Wire Sensors",
                 description:
-                  "Connect sensors to GPIO pins: Moisture (34), Temperature (4), Humidity (35), Rain (5)",
+                  "Connect sensors to GPIO pins: Soil Moisture (34), DHT22 (4), Humidity (35), Rain (5)",
               },
               {
                 step: "4",
-                title: "Start Monitoring",
+                title: "Go Live",
                 description:
-                  "Enter your Channel ID and API Key above to begin real-time monitoring",
+                  "Enter credentials above to stream real-time data to AgriSmart dashboard",
               },
             ].map((item, idx) => (
               <motion.div
