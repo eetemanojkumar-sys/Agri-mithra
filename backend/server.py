@@ -52,6 +52,20 @@ class CommodityPrice(BaseModel):
     recommendation: str
     change_percent: float
 
+class AgriAnalysisRequest(BaseModel):
+    moisture: float
+    temperature: float
+    humidity: float
+
+class AgriAnalysisResponse(BaseModel):
+    environmental_assessment: Dict[str, Any]
+    crop_recommendation: Dict[str, Any]
+    irrigation_decision: Dict[str, Any]
+    yield_insight: Dict[str, Any]
+    fertilizer_advisory: Dict[str, Any]
+    risk_detection: Dict[str, Any]
+    corrective_actions: List[str]
+
 # Motor state (in-memory for demo)
 motor_state = {"status": "off", "last_updated": datetime.now(timezone.utc).isoformat()}
 
