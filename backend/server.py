@@ -444,38 +444,89 @@ async def analyze_agricultural_conditions(request: AgriAnalysisRequest):
         "overall_status": "Favorable" if soil_condition == "Optimal" and "Optimal" in temp_impact else "Stressed" if "Critical" in soil_condition or "Critical" in temp_impact else "Acceptable"
     }
     
-    # 2. Crop Recommendation Engine
-    crop_suggestions = []
-    if moisture >= 40 and 20 <= temperature <= 30:
-        crop_suggestions = [
-            {"crop": "Rice", "reasoning": "High water availability suits paddy cultivation. Moderate temperature ideal for growth."},
-            {"crop": "Sugarcane", "reasoning": "Water-intensive crop. Current moisture and temperature support strong vegetative growth."},
-            {"crop": "Cotton", "reasoning": "Good moisture with moderate warmth promotes boll development."}
-        ]
-    elif moisture < 40 and temperature > 30:
-        crop_suggestions = [
-            {"crop": "Millets", "reasoning": "Drought-resistant with low water requirement. Thrives in high temperature."},
-            {"crop": "Sorghum", "reasoning": "Deep root system handles water stress. Heat-tolerant up to 40°C."},
-            {"crop": "Groundnut", "reasoning": "Moderate water needs. High temperature accelerates pod formation."}
-        ]
-    elif moisture >= 50 and temperature < 25:
-        crop_suggestions = [
-            {"crop": "Wheat", "reasoning": "Cool season crop. High moisture with low temperature ideal for tillering."},
-            {"crop": "Barley", "reasoning": "Winter crop. Current conditions perfect for grain filling stage."},
-            {"crop": "Peas", "reasoning": "Legume thrives in cool, moist conditions. Good nitrogen fixation."}
-        ]
+    # 3. Crop Suitability / Recommendation (Crop-Aware Logic)
+    if crop_profile:
+        # Evaluate suitability of selected crop
+        suitability_score = 100
+        issues = []
+        
+        if moisture < crop_profile["moisture_critical_min"]:
+            suitability_score -= 40
+            issues.append(f"Critical moisture deficit for {crop_profile['name']}")
+        elif moisture < crop_profile["moisture_optimal_min"]:
+            suitability_score -= 20
+            issues.append(f"Below optimal moisture for {crop_profile['name']}")
+        elif moisture > crop_profile["moisture_optimal_max"]:
+            suitability_score -= 15
+            issues.append(f"Excess moisture may harm {crop_profile['name']}")
+        
+        if temperature > crop_profile["heat_tolerance"]:
+            suitability_score -= 35
+            issues.append(f"Temperature exceeds heat tolerance of {crop_profile['name']}")
+        elif temperature < crop_profile["optimal_temp_min"]:
+            suitability_score -= 20
+            issues.append(f"Temperature too low for optimal {crop_profile['name']} growth")
+        elif temperature > crop_profile["optimal_temp_max"]:
+            suitability_score -= 15
+            issues.append(f"Temperature higher than ideal for {crop_profile['name']}")
+        
+        if suitability_score >= 80:
+            suitability = "Excellent"
+            suitability_comment = f"Current conditions are highly suitable for {crop_profile['name']} cultivation."
+        elif suitability_score >= 60:
+            suitability = "Good"
+            suitability_comment = f"Conditions are acceptable for {crop_profile['name']} but some improvements possible."
+        elif suitability_score >= 40:
+            suitability = "Fair"
+            suitability_comment = f"Marginal conditions for {crop_profile['name']}. Address identified issues."
+        else:
+            suitability = "Poor"
+            suitability_comment = f"Current conditions are not suitable for {crop_profile['name']}. Immediate intervention required."
+        
+        crop_recommendation = {
+            "mode": "Crop Suitability Evaluation",
+            "selected_crop": crop_profile["name"],
+            "suitability_score": suitability_score,
+            "suitability_rating": suitability,
+            "suitability_comment": suitability_comment,
+            "identified_issues": issues if issues else ["No major issues detected"],
+            "water_requirement": crop_profile["water_requirement"],
+            "growth_cycle": f"{crop_profile['growth_cycle_days']} days"
+        }
     else:
-        crop_suggestions = [
-            {"crop": "Maize", "reasoning": "Versatile crop adapts to moderate conditions. Average moisture sufficient."},
-            {"crop": "Beans", "reasoning": "Moderate water and temperature requirements. Quick maturity cycle."},
-            {"crop": "Vegetables", "reasoning": "Mixed vegetable cultivation viable under current balanced conditions."}
-        ]
-    
-    crop_recommendation = {
-        "recommendations": crop_suggestions,
-        "season_alignment": "Kharif (Monsoon)" if temperature > 25 else "Rabi (Winter)",
-        "confidence": "High" if environmental_assessment["overall_status"] == "Favorable" else "Moderate"
-    }
+        # Recommend suitable crops based on conditions
+        crop_suggestions = []
+        if moisture >= 60 and 20 <= temperature <= 35:
+            crop_suggestions = [
+                {"crop": "Rice", "reasoning": "High water availability suits paddy cultivation. Moderate temperature ideal for growth.", "suitability": "95%"},
+                {"crop": "Sugarcane", "reasoning": "Water-intensive crop. Current moisture and temperature support strong vegetative growth.", "suitability": "92%"},
+                {"crop": "Cotton", "reasoning": "Good moisture with moderate warmth promotes boll development.", "suitability": "88%"}
+            ]
+        elif moisture < 40 and temperature > 30:
+            crop_suggestions = [
+                {"crop": "Millets", "reasoning": "Drought-resistant with low water requirement. Thrives in high temperature.", "suitability": "93%"},
+                {"crop": "Sorghum", "reasoning": "Deep root system handles water stress. Heat-tolerant up to 40°C.", "suitability": "90%"},
+                {"crop": "Groundnut", "reasoning": "Moderate water needs. High temperature accelerates pod formation.", "suitability": "85%"}
+            ]
+        elif moisture >= 50 and temperature < 25:
+            crop_suggestions = [
+                {"crop": "Wheat", "reasoning": "Cool season crop. High moisture with low temperature ideal for tillering.", "suitability": "94%"},
+                {"crop": "Vegetables", "reasoning": "Many vegetables thrive in cool, moist conditions.", "suitability": "88%"},
+                {"crop": "Onion", "reasoning": "Moderate moisture and cool temperature favor bulb formation.", "suitability": "86%"}
+            ]
+        else:
+            crop_suggestions = [
+                {"crop": "Maize", "reasoning": "Versatile crop adapts to moderate conditions. Average moisture sufficient.", "suitability": "87%"},
+                {"crop": "Groundnut", "reasoning": "Moderate water and temperature requirements. Quick maturity cycle.", "suitability": "82%"},
+                {"crop": "Vegetables", "reasoning": "Mixed vegetable cultivation viable under current balanced conditions.", "suitability": "80%"}
+            ]
+        
+        crop_recommendation = {
+            "mode": "Crop Recommendation",
+            "message": "No crop selected. Here are suitable crops for current conditions:",
+            "recommendations": crop_suggestions,
+            "season_alignment": "Kharif (Monsoon)" if temperature > 25 else "Rabi (Winter)"
+        }
     
     # 3. Smart Irrigation Advisory
     if moisture < 20:
