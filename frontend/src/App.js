@@ -419,10 +419,16 @@ function App() {
             </h2>
             <div className="flex items-center justify-center gap-4 text-base text-foreground/70">
               <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
-              {simulatorMode && !isLiveMode && (
+              {connectionMode === "simulator" && (
                 <>
                   <span>•</span>
                   <span className="text-accent font-medium">Simulator Active (Testing Mode)</span>
+                </>
+              )}
+              {connectionMode === "offline" && (
+                <>
+                  <span>•</span>
+                  <span className="text-gray-500 font-medium">Connect sensors to view live data</span>
                 </>
               )}
             </div>
