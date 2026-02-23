@@ -700,17 +700,33 @@ function App() {
                         </ul>
                       </div>
 
-                      {/* Fertilizer Advisory */}
-                      <div>
-                        <h4 className="font-outfit font-bold text-primary mb-2">
-                          Fertilizer Advisory
-                        </h4>
-                        <ul className="space-y-1 text-sm">
-                          {agriAnalysis.fertilizer_advisory.recommendations.map((rec, idx) => (
-                            <li key={idx}>• {rec}</li>
-                          ))}
-                        </ul>
-                      </div>
+                      {/* Alerts */}
+                      {agriAnalysis.alerts && agriAnalysis.alerts.length > 0 && (
+                        <div>
+                          <h4 className="font-outfit font-bold text-primary mb-2">
+                            Active Alerts
+                          </h4>
+                          <div className="space-y-2">
+                            {agriAnalysis.alerts.map((alert, idx) => (
+                              <div
+                                key={idx}
+                                className={`p-3 rounded text-sm ${
+                                  alert.type === "CRITICAL"
+                                    ? "bg-red-50 border-l-4 border-red-500"
+                                    : alert.type === "URGENT" || alert.type === "WARNING"
+                                    ? "bg-yellow-50 border-l-4 border-yellow-500"
+                                    : alert.type === "OPPORTUNITY"
+                                    ? "bg-blue-50 border-l-4 border-blue-500"
+                                    : "bg-green-50 border-l-4 border-green-500"
+                                }`}
+                              >
+                                <p className="font-medium mb-1">{alert.message}</p>
+                                <p className="text-xs text-foreground/70">Action: {alert.action}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
