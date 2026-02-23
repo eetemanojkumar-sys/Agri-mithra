@@ -110,8 +110,10 @@ function App() {
 
   // Fetch AI analysis when sensor data changes
   useEffect(() => {
-    fetchAgriAnalysis();
-  }, [sensorData, selectedAnalysisCrop]);
+    if (connectionMode !== "offline") {
+      fetchAgriAnalysis();
+    }
+  }, [sensorData, selectedAnalysisCrop, connectionMode]);
 
   const fetchAvailableCrops = async () => {
     try {
