@@ -373,10 +373,10 @@ function App() {
             className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-20"
           >
             {[
-              { label: "Water Saved", value: "40%", icon: Droplets },
-              { label: "Accuracy", value: "95%", icon: CheckCircle2 },
-              { label: "Monitoring", value: "24/7", icon: Zap },
-              { label: "Crops Supported", value: "5+", icon: Sprout },
+              { label: "Water Saved", value: "40%", icon: Droplets, desc: "Optimized irrigation" },
+              { label: "Accuracy", value: "95%", icon: CheckCircle2, desc: "AI predictions" },
+              { label: "Monitoring", value: "24/7", icon: Zap, desc: "Real-time updates" },
+              { label: "Crops Supported", value: "5+", icon: Sprout, desc: "Price forecasts" },
             ].map((stat, idx) => (
               <motion.div
                 key={idx}
@@ -388,7 +388,8 @@ function App() {
                 <div className="text-3xl font-outfit font-bold text-primary mb-1">
                   {stat.value}
                 </div>
-                <div className="text-sm text-foreground/70">{stat.label}</div>
+                <div className="text-sm text-foreground/70 font-medium">{stat.label}</div>
+                <div className="text-xs text-foreground/50 mt-1">{stat.desc}</div>
               </motion.div>
             ))}
           </motion.div>
