@@ -528,31 +528,63 @@ async def analyze_agricultural_conditions(request: AgriAnalysisRequest):
             "season_alignment": "Kharif (Monsoon)" if temperature > 25 else "Rabi (Winter)"
         }
     
-    # 3. Smart Irrigation Advisory
-    if moisture < 20:
-        irrigation_level = "Immediate Irrigation Required"
-        irrigation_priority = "Critical"
-        water_amount = "20-25mm"
-        timing = "Within 6 hours"
-        reasoning = "Severe moisture deficit. Crop wilting imminent. Emergency irrigation essential."
-    elif moisture < 35:
-        irrigation_level = "Recommended"
-        irrigation_priority = "High"
-        water_amount = "15-20mm"
-        timing = "Within 24 hours"
-        reasoning = "Below optimal range. Preventive irrigation recommended before stress symptoms appear."
-    elif moisture < 50:
-        irrigation_level = "Low Priority"
-        irrigation_priority = "Low"
-        water_amount = "10-15mm (if extended dry period expected)"
-        timing = "Within 48-72 hours"
-        reasoning = "Adequate moisture currently. Monitor daily. Schedule irrigation if no rain forecasted."
+    # 4. Smart Irrigation Advisory (Crop-Aware)
+    if crop_profile:
+        # Use crop-specific thresholds
+        critical_threshold = crop_profile["moisture_critical_min"]
+        optimal_min = crop_profile["moisture_optimal_min"]
+        optimal_max = crop_profile["moisture_optimal_max"]
+        
+        if moisture < critical_threshold:
+            irrigation_level = "Immediate Irrigation Required"
+            irrigation_priority = "Critical"
+            water_amount = "20-25mm"
+            timing = "Within 6 hours"
+            reasoning = f"Moisture below critical threshold for {crop_profile['name']}. Crop damage imminent. Emergency irrigation essential."
+        elif moisture < optimal_min:
+            irrigation_level = "Recommended"
+            irrigation_priority = "High"
+            water_amount = "15-20mm"
+            timing = "Within 24 hours"
+            reasoning = f"Below optimal range for {crop_profile['name']}. Preventive irrigation recommended before stress symptoms appear."
+        elif moisture <= optimal_max:
+            irrigation_level = "No Irrigation Needed"
+            irrigation_priority = "None"
+            water_amount = "0mm"
+            timing = "N/A"
+            reasoning = f"Soil moisture optimal for {crop_profile['name']}. Maintain current levels with routine monitoring."
+        else:
+            irrigation_level = "Reduce Irrigation"
+            irrigation_priority = "Medium"
+            water_amount = "0mm (stop irrigation)"
+            timing = "Immediate"
+            reasoning = f"Excess moisture detected for {crop_profile['name']}. Risk of waterlogging. Improve drainage."
     else:
-        irrigation_level = "No Irrigation Needed"
-        irrigation_priority = "None"
-        water_amount = "0mm"
-        timing = "N/A"
-        reasoning = "Soil moisture adequate. Excess irrigation may cause waterlogging and nutrient leaching."
+        # Generic thresholds
+        if moisture < 20:
+            irrigation_level = "Immediate Irrigation Required"
+            irrigation_priority = "Critical"
+            water_amount = "20-25mm"
+            timing = "Within 6 hours"
+            reasoning = "Severe moisture deficit. Crop wilting imminent. Emergency irrigation essential."
+        elif moisture < 35:
+            irrigation_level = "Recommended"
+            irrigation_priority = "High"
+            water_amount = "15-20mm"
+            timing = "Within 24 hours"
+            reasoning = "Below optimal range. Preventive irrigation recommended before stress symptoms appear."
+        elif moisture < 50:
+            irrigation_level = "Low Priority"
+            irrigation_priority = "Low"
+            water_amount = "10-15mm (if extended dry period expected)"
+            timing = "Within 48-72 hours"
+            reasoning = "Adequate moisture currently. Monitor daily. Schedule irrigation if no rain forecasted."
+        else:
+            irrigation_level = "No Irrigation Needed"
+            irrigation_priority = "None"
+            water_amount = "0mm"
+            timing = "N/A"
+            reasoning = "Soil moisture adequate. Excess irrigation may cause waterlogging and nutrient leaching."
     
     irrigation_advisory = {
         "level": irrigation_level,
@@ -560,7 +592,8 @@ async def analyze_agricultural_conditions(request: AgriAnalysisRequest):
         "recommended_amount": water_amount,
         "timing": timing,
         "reasoning": reasoning,
-        "method": "Drip irrigation (efficient)" if moisture < 40 else "Sprinkler irrigation"
+        "method": "Drip irrigation (efficient)" if moisture < optimal_min if crop_profile else moisture < 40 else "Sprinkler irrigation",
+        "crop_water_requirement": crop_profile["water_requirement"] if crop_profile else "N/A"
     }
     
     # 4. Stress & Risk Detection
