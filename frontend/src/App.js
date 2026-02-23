@@ -515,37 +515,165 @@ function App() {
 
             {/* AI Recommendation */}
             <Card className="glass-card p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <Sprout className="h-8 w-8 text-primary" />
-                <h3 className="text-xl font-outfit font-bold text-primary">
-                  AI Recommendation
-                </h3>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <Sprout className="h-8 w-8 text-primary" />
+                  <h3 className="text-xl font-outfit font-bold text-primary">
+                    AI Decision Support
+                  </h3>
+                </div>
+                <Button
+                  data-testid="view-detailed-analysis-btn"
+                  onClick={() => setShowDetailedAnalysis(!showDetailedAnalysis)}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                >
+                  {showDetailedAnalysis ? "Quick View" : "Detailed Analysis"}
+                </Button>
               </div>
-              <div className="text-center py-8">
-                {sensorData.moisture < 30 ? (
-                  <div data-testid="recommendation-irrigate">
-                    <AlertTriangle className="h-16 w-16 text-accent mx-auto mb-4" />
-                    <div className="text-2xl font-outfit font-bold text-accent mb-2">
-                      Irrigate Now!
+
+              {analysisLoading ? (
+                <div className="text-center py-8">
+                  <div className="inline-block w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : agriAnalysis ? (
+                <div>
+                  {!showDetailedAnalysis ? (
+                    <div className="text-center py-8" data-testid="quick-recommendation">
+                      {agriAnalysis.irrigation_decision.irrigation_needed ? (
+                        <div>
+                          <AlertTriangle className="h-16 w-16 text-accent mx-auto mb-4" />
+                          <div className="text-2xl font-outfit font-bold text-accent mb-2">
+                            {agriAnalysis.irrigation_decision.urgency === "immediate"
+                              ? "Irrigate Now!"
+                              : "Irrigation Recommended"}
+                          </div>
+                          <p className="text-foreground/70 mb-4">
+                            {agriAnalysis.irrigation_decision.reasoning}
+                          </p>
+                          <div className="text-sm text-foreground/60">
+                            Apply: {agriAnalysis.irrigation_decision.recommended_water_amount}
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <CheckCircle2 className="h-16 w-16 text-green-600 mx-auto mb-4" />
+                          <div className="text-2xl font-outfit font-bold text-green-600 mb-2">
+                            Optimal Conditions
+                          </div>
+                          <p className="text-foreground/70 mb-4">
+                            {agriAnalysis.irrigation_decision.reasoning}
+                          </p>
+                          <div className="text-sm text-foreground/60">
+                            {agriAnalysis.yield_insight.growth_description}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <p className="text-foreground/70">
-                      Soil moisture is at {sensorData.moisture}%. Immediate
-                      irrigation recommended.
-                    </p>
-                  </div>
-                ) : (
-                  <div data-testid="recommendation-optimal">
-                    <CheckCircle2 className="h-16 w-16 text-green-600 mx-auto mb-4" />
-                    <div className="text-2xl font-outfit font-bold text-green-600 mb-2">
-                      Optimal Moisture
+                  ) : (
+                    <div className="space-y-6 max-h-96 overflow-y-auto" data-testid="detailed-analysis">
+                      {/* Environmental Assessment */}
+                      <div>
+                        <h4 className="font-outfit font-bold text-primary mb-2">
+                          Environmental Assessment
+                        </h4>
+                        <div className="space-y-1 text-sm">
+                          <p>• {agriAnalysis.environmental_assessment.soil_description}</p>
+                          <p>• {agriAnalysis.environmental_assessment.temp_description}</p>
+                          <p>• {agriAnalysis.environmental_assessment.humidity_description}</p>
+                        </div>
+                      </div>
+
+                      {/* Crop Recommendation */}
+                      <div>
+                        <h4 className="font-outfit font-bold text-primary mb-2">
+                          Crop Recommendation
+                        </h4>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {agriAnalysis.crop_recommendation.recommended_crops.map((crop, idx) => (
+                            <span
+                              key={idx}
+                              className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium"
+                            >
+                              {crop}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="text-sm text-foreground/70">
+                          {agriAnalysis.crop_recommendation.reasoning}
+                        </p>
+                      </div>
+
+                      {/* Yield Insight */}
+                      <div>
+                        <h4 className="font-outfit font-bold text-primary mb-2">
+                          Yield & Growth Insight
+                        </h4>
+                        <div className="space-y-1 text-sm">
+                          <p className="font-medium">Status: {agriAnalysis.yield_insight.yield_status}</p>
+                          <p>Predicted Yield: {agriAnalysis.yield_insight.predicted_yield}</p>
+                          <p>{agriAnalysis.yield_insight.growth_description}</p>
+                        </div>
+                      </div>
+
+                      {/* Risk Detection */}
+                      <div>
+                        <h4 className="font-outfit font-bold text-primary mb-2">
+                          Risk Detection ({agriAnalysis.risk_detection.risk_count} active)
+                        </h4>
+                        <div className="space-y-2">
+                          {agriAnalysis.risk_detection.identified_risks.map((risk, idx) => (
+                            <div
+                              key={idx}
+                              className={`p-2 rounded text-sm ${
+                                risk.severity === "high"
+                                  ? "bg-red-50 border border-red-200"
+                                  : risk.severity === "medium"
+                                  ? "bg-yellow-50 border border-yellow-200"
+                                  : "bg-green-50 border border-green-200"
+                              }`}
+                            >
+                              <span className="font-medium">{risk.type}</span>: {risk.description}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Corrective Actions */}
+                      <div>
+                        <h4 className="font-outfit font-bold text-primary mb-2">
+                          Corrective Actions
+                        </h4>
+                        <ul className="space-y-1 text-sm">
+                          {agriAnalysis.corrective_actions.map((action, idx) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                              <span>{action}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Fertilizer Advisory */}
+                      <div>
+                        <h4 className="font-outfit font-bold text-primary mb-2">
+                          Fertilizer Advisory
+                        </h4>
+                        <ul className="space-y-1 text-sm">
+                          {agriAnalysis.fertilizer_advisory.recommendations.map((rec, idx) => (
+                            <li key={idx}>• {rec}</li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                    <p className="text-foreground/70">
-                      Soil moisture is at {sensorData.moisture}%. No irrigation
-                      needed at this time.
-                    </p>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-foreground/70">Loading analysis...</p>
+                </div>
+              )}
             </Card>
           </div>
         </div>
