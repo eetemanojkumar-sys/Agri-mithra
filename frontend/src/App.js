@@ -314,14 +314,14 @@ function App() {
                 IoT Setup
               </button>
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10">
-                {isLiveMode ? (
+                {connectionMode === "live" ? (
                   <>
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" data-testid="live-indicator" />
-                    <span className="text-xs font-semibold text-primary" data-testid="mode-label">
+                    <span className="text-xs font-semibold text-green-600" data-testid="mode-label">
                       LIVE
                     </span>
                   </>
-                ) : simulatorMode ? (
+                ) : connectionMode === "simulator" ? (
                   <>
                     <Zap className="h-3 w-3 text-accent" data-testid="simulator-indicator" />
                     <span className="text-xs font-semibold text-accent" data-testid="mode-label">
@@ -330,8 +330,10 @@ function App() {
                   </>
                 ) : (
                   <>
-                    <WifiOff className="h-3 w-3 text-gray-400" />
-                    <span className="text-xs font-medium text-gray-600">OFFLINE</span>
+                    <WifiOff className="h-3 w-3 text-gray-400" data-testid="offline-indicator" />
+                    <span className="text-xs font-medium text-gray-600" data-testid="mode-label">
+                      OFFLINE
+                    </span>
                   </>
                 )}
               </div>
