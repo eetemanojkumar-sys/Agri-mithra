@@ -712,24 +712,84 @@ function App() {
                         </div>
                       </div>
 
-                      {/* Crop Recommendation */}
+                      {/* Crop Recommendation or Suitability */}
                       <div>
                         <h4 className="font-outfit font-bold text-primary mb-2">
-                          Crop Recommendation
+                          {agriAnalysis.crop_recommendation.mode === "Crop Suitability Evaluation" 
+                            ? "Crop Suitability Evaluation" 
+                            : "Crop Recommendation"}
                         </h4>
-                        <div className="flex flex-wrap gap-2 mb-2">
-                          {agriAnalysis.crop_recommendation.recommendations.map((item, idx) => (
-                            <span
-                              key={idx}
-                              className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium"
-                            >
-                              {item.crop}
+                        
+                        {agriAnalysis.crop_recommendation.mode === "Crop Suitability Evaluation" ? (
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-3">
+                              <div className="text-3xl font-bold text-primary">
+                                {agriAnalysis.crop_recommendation.suitability_score}/100
+                              </div>
+                              <div>
+                                <div className="text-lg font-semibold text-primary">
+                                  {agriAnalysis.crop_recommendation.suitability_rating}
+                                </div>
+                                <div className="text-xs text-foreground/70">
+                                  for {agriAnalysis.crop_recommendation.selected_crop}
+                                </div>
+                              </div>
+                            </div>
+                            <p className="text-sm text-foreground/80">
+                              {agriAnalysis.crop_recommendation.suitability_comment}
+                            </p>
+                            {agriAnalysis.crop_recommendation.identified_issues.length > 0 && (
+                              <div className="mt-2">
+                                <p className="text-xs font-semibold text-foreground/70 mb-1">Issues Identified:</p>
+                                <ul className="space-y-1">
+                                  {agriAnalysis.crop_recommendation.identified_issues.map((issue, idx) => (
+                                    <li key={idx} className="text-xs text-orange-600">• {issue}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div>
+                            <p className="text-sm text-foreground/70 mb-3">
+                              {agriAnalysis.crop_recommendation.message}
+                            </p>
+                            <div className="space-y-2">
+                              {agriAnalysis.crop_recommendation.recommendations.map((item, idx) => (
+                                <div key={idx} className="p-3 bg-primary/5 rounded border border-primary/20">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span className="font-semibold text-primary">{item.crop}</span>
+                                    <span className="text-xs font-semibold text-green-600">{item.suitability}</span>
+                                  </div>
+                                  <p className="text-xs text-foreground/70">{item.reasoning}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Irrigation Advisory */}
+                      <div>
+                        <h4 className="font-outfit font-bold text-primary mb-2">
+                          Irrigation Advisory
+                        </h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold">Level:</span>
+                            <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                              agriAnalysis.irrigation_advisory.priority === "Critical" ? "bg-red-100 text-red-700" :
+                              agriAnalysis.irrigation_advisory.priority === "High" ? "bg-orange-100 text-orange-700" :
+                              agriAnalysis.irrigation_advisory.priority === "Medium" ? "bg-yellow-100 text-yellow-700" :
+                              "bg-green-100 text-green-700"
+                            }`}>
+                              {agriAnalysis.irrigation_advisory.level}
                             </span>
-                          ))}
+                          </div>
+                          <p>Amount: {agriAnalysis.irrigation_advisory.recommended_amount}</p>
+                          <p>Timing: {agriAnalysis.irrigation_advisory.timing}</p>
+                          <p className="text-foreground/70">{agriAnalysis.irrigation_advisory.reasoning}</p>
                         </div>
-                        <p className="text-sm text-foreground/70">
-                          Season: {agriAnalysis.crop_recommendation.season_alignment}
-                        </p>
                       </div>
 
                       {/* Yield Insight */}
