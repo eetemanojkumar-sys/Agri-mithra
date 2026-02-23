@@ -73,7 +73,141 @@ class AgriAnalysisResponse(BaseModel):
 # Motor state (in-memory for demo)
 motor_state = {"status": "off", "last_updated": datetime.now(timezone.utc).isoformat()}
 
-# Sample commodity price data
+# Crop-specific thresholds and characteristics
+CROP_PROFILES = {
+    "rice": {
+        "name": "Rice",
+        "moisture_optimal_min": 60,
+        "moisture_optimal_max": 85,
+        "moisture_critical_min": 45,
+        "water_requirement": "Very High",
+        "heat_tolerance": 38,
+        "optimal_temp_min": 20,
+        "optimal_temp_max": 35,
+        "growth_cycle_days": 120,
+        "category": "Water-intensive crop"
+    },
+    "wheat": {
+        "name": "Wheat",
+        "moisture_optimal_min": 40,
+        "moisture_optimal_max": 65,
+        "moisture_critical_min": 25,
+        "water_requirement": "Moderate",
+        "heat_tolerance": 32,
+        "optimal_temp_min": 12,
+        "optimal_temp_max": 25,
+        "growth_cycle_days": 120,
+        "category": "Winter crop"
+    },
+    "millets": {
+        "name": "Millets",
+        "moisture_optimal_min": 25,
+        "moisture_optimal_max": 45,
+        "moisture_critical_min": 15,
+        "water_requirement": "Low",
+        "heat_tolerance": 42,
+        "optimal_temp_min": 25,
+        "optimal_temp_max": 38,
+        "growth_cycle_days": 75,
+        "category": "Drought-resistant"
+    },
+    "cotton": {
+        "name": "Cotton",
+        "moisture_optimal_min": 50,
+        "moisture_optimal_max": 70,
+        "moisture_critical_min": 30,
+        "water_requirement": "High",
+        "heat_tolerance": 40,
+        "optimal_temp_min": 21,
+        "optimal_temp_max": 37,
+        "growth_cycle_days": 150,
+        "category": "Cash crop"
+    },
+    "groundnut": {
+        "name": "Groundnut",
+        "moisture_optimal_min": 35,
+        "moisture_optimal_max": 55,
+        "moisture_critical_min": 20,
+        "water_requirement": "Moderate",
+        "heat_tolerance": 40,
+        "optimal_temp_min": 20,
+        "optimal_temp_max": 35,
+        "growth_cycle_days": 110,
+        "category": "Legume"
+    },
+    "sugarcane": {
+        "name": "Sugarcane",
+        "moisture_optimal_min": 65,
+        "moisture_optimal_max": 80,
+        "moisture_critical_min": 50,
+        "water_requirement": "Very High",
+        "heat_tolerance": 38,
+        "optimal_temp_min": 20,
+        "optimal_temp_max": 35,
+        "growth_cycle_days": 365,
+        "category": "Water-intensive crop"
+    },
+    "maize": {
+        "name": "Maize",
+        "moisture_optimal_min": 45,
+        "moisture_optimal_max": 65,
+        "moisture_critical_min": 30,
+        "water_requirement": "Moderate",
+        "heat_tolerance": 35,
+        "optimal_temp_min": 18,
+        "optimal_temp_max": 32,
+        "growth_cycle_days": 90,
+        "category": "Versatile crop"
+    },
+    "vegetables": {
+        "name": "Vegetables",
+        "moisture_optimal_min": 50,
+        "moisture_optimal_max": 70,
+        "moisture_critical_min": 35,
+        "water_requirement": "High",
+        "heat_tolerance": 32,
+        "optimal_temp_min": 15,
+        "optimal_temp_max": 30,
+        "growth_cycle_days": 60,
+        "category": "Moisture-sensitive"
+    },
+    "sorghum": {
+        "name": "Sorghum",
+        "moisture_optimal_min": 30,
+        "moisture_optimal_max": 50,
+        "moisture_critical_min": 18,
+        "water_requirement": "Low",
+        "heat_tolerance": 40,
+        "optimal_temp_min": 25,
+        "optimal_temp_max": 38,
+        "growth_cycle_days": 100,
+        "category": "Drought-tolerant"
+    },
+    "onion": {
+        "name": "Onion",
+        "moisture_optimal_min": 45,
+        "moisture_optimal_max": 65,
+        "moisture_critical_min": 30,
+        "water_requirement": "Moderate",
+        "heat_tolerance": 30,
+        "optimal_temp_min": 13,
+        "optimal_temp_max": 28,
+        "growth_cycle_days": 110,
+        "category": "Vegetable"
+    },
+    "tomato": {
+        "name": "Tomato",
+        "moisture_optimal_min": 50,
+        "moisture_optimal_max": 70,
+        "moisture_critical_min": 35,
+        "water_requirement": "High",
+        "heat_tolerance": 32,
+        "optimal_temp_min": 18,
+        "optimal_temp_max": 29,
+        "growth_cycle_days": 75,
+        "category": "Fruit vegetable"
+    }
+}
 COMMODITY_DATA = {
     "rice": {
         "prices": [2100, 2150, 2180, 2200, 2250, 2300, 2350],
