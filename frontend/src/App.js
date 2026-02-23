@@ -79,9 +79,9 @@ function App() {
 
   const pollIntervalRef = useRef(null);
 
-  // Demo mode simulation
+  // Simulator mode
   useEffect(() => {
-    if (simulatorMode && !isLiveMode) {
+    if (connectionMode === "simulator") {
       const demoInterval = setInterval(() => {
         setSensorData({
           moisture: Math.floor(Math.random() * 40) + 20,
@@ -94,7 +94,7 @@ function App() {
 
       return () => clearInterval(demoInterval);
     }
-  }, [simulatorMode, isLiveMode]);
+  }, [connectionMode]);
 
   // Fetch commodity price data
   useEffect(() => {
