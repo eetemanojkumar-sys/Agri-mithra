@@ -164,6 +164,172 @@ class AgriSmartAPITester:
         print("   ℹ️  ThingSpeak integration requires valid credentials for full testing")
         return True  # Consider this passed as it handles errors correctly
 
+    def test_agri_analysis(self):
+        """Test Agricultural Analysis endpoint with specific test cases"""
+        print("\n🌱 Testing Agricultural Analysis Endpoint...")
+        
+        # Test Case 1: Low moisture (20%), high temp (38°C) → should return immediate irrigation urgency
+        print("\n📋 Test Case 1: Low moisture + High temperature (Critical conditions)")
+        success1, response1 = self.run_test(
+            "Agri Analysis - Critical Irrigation Needed",
+            "POST",
+            "agri-analysis",
+            200,
+            data={
+                "moisture": 20.0,
+                "temperature": 38.0,
+                "humidity": 50.0
+            }
+        )
+        
+        if success1 and response1:
+            # Validate response structure
+            required_fields = [
+                "environmental_assessment", "crop_recommendation", "irrigation_decision",
+                "yield_insight", "fertilizer_advisory", "risk_detection", "corrective_actions"
+            ]
+            missing_fields = [field for field in required_fields if field not in response1]
+            if missing_fields:
+                print(f"   ❌ Missing fields: {missing_fields}")
+                success1 = False
+            else:
+                print(f"   ✅ All required fields present")
+                
+                # Check irrigation urgency for critical conditions
+                irrigation = response1.get("irrigation_decision", {})
+                if irrigation.get("urgency") == "immediate" and irrigation.get("irrigation_needed") == True:
+                    print(f"   ✅ Correct irrigation urgency: {irrigation.get('urgency')}")
+                else:
+                    print(f"   ❌ Expected immediate irrigation, got: {irrigation.get('urgency')}")
+                    success1 = False
+                
+                # Check risk detection for high temperature
+                risks = response1.get("risk_detection", {}).get("identified_risks", [])
+                heat_stress_found = any(risk.get("type") == "Heat Stress" for risk in risks)
+                water_stress_found = any(risk.get("type") == "Water Stress" for risk in risks)
+                if heat_stress_found and water_stress_found:
+                    print(f"   ✅ Correctly identified heat stress and water stress risks")
+                else:
+                    print(f"   ❌ Expected heat stress and water stress risks")
+                    success1 = False
+        
+        # Test Case 2: Optimal conditions (55% moisture, 25°C) → should return favorable yield status
+        print("\n📋 Test Case 2: Optimal conditions")
+        success2, response2 = self.run_test(
+            "Agri Analysis - Optimal Conditions",
+            "POST",
+            "agri-analysis",
+            200,
+            data={
+                "moisture": 55.0,
+                "temperature": 25.0,
+                "humidity": 65.0
+            }
+        )
+        
+        if success2 and response2:
+            # Check yield status for optimal conditions
+            yield_insight = response2.get("yield_insight", {})
+            if yield_insight.get("yield_status") == "favorable":
+                print(f"   ✅ Correct yield status: {yield_insight.get('yield_status')}")
+            else:
+                print(f"   ❌ Expected favorable yield status, got: {yield_insight.get('yield_status')}")
+                success2 = False
+            
+            # Check irrigation decision for optimal conditions
+            irrigation = response2.get("irrigation_decision", {})
+            if irrigation.get("irrigation_needed") == False:
+                print(f"   ✅ Correctly determined no irrigation needed")
+            else:
+                print(f"   ❌ Expected no irrigation needed for optimal conditions")
+                success2 = False
+        
+        # Test Case 3: High moisture (80%) → should detect waterlogging risk
+        print("\n📋 Test Case 3: High moisture (Waterlogging risk)")
+        success3, response3 = self.run_test(
+            "Agri Analysis - High Moisture",
+            "POST",
+            "agri-analysis",
+            200,
+            data={
+                "moisture": 80.0,
+                "temperature": 28.0,
+                "humidity": 85.0
+            }
+        )
+        
+        if success3 and response3:
+            # Check for waterlogging risk detection
+            risks = response3.get("risk_detection", {}).get("identified_risks", [])
+            waterlogging_found = any(risk.get("type") == "Waterlogging" for risk in risks)
+            disease_risk_found = any(risk.get("type") == "Disease Risk" for risk in risks)
+            
+            if waterlogging_found:
+                print(f"   ✅ Correctly identified waterlogging risk")
+            else:
+                print(f"   ❌ Expected waterlogging risk detection")
+                success3 = False
+            
+            if disease_risk_found:
+                print(f"   ✅ Correctly identified disease risk (high moisture + humidity)")
+            else:
+                print(f"   ❌ Expected disease risk detection")
+                success3 = False
+            
+            # Check irrigation decision for high moisture
+            irrigation = response3.get("irrigation_decision", {})
+            if irrigation.get("irrigation_needed") == False:
+                print(f"   ✅ Correctly determined no irrigation needed for high moisture")
+            else:
+                print(f"   ❌ Expected no irrigation needed for high moisture conditions")
+                success3 = False
+        
+        # Test invalid input
+        print("\n📋 Test Case 4: Invalid input validation")
+        success4, _ = self.run_test(
+            "Agri Analysis - Missing Fields",
+            "POST",
+            "agri-analysis",
+            422,  # Expecting validation error
+            data={
+                "moisture": 50.0
+                # Missing temperature and humidity
+            }
+        )
+        
+        # Test edge cases
+        print("\n📋 Test Case 5: Edge case values")
+        success5, response5 = self.run_test(
+            "Agri Analysis - Edge Cases",
+            "POST",
+            "agri-analysis",
+            200,
+            data={
+                "moisture": 0.0,
+                "temperature": 50.0,
+                "humidity": 100.0
+            }
+        )
+        
+        if success5 and response5:
+            # Should detect extreme conditions
+            risks = response5.get("risk_detection", {}).get("identified_risks", [])
+            risk_count = len([r for r in risks if r.get("severity") in ["high", "medium"]])
+            if risk_count > 0:
+                print(f"   ✅ Correctly identified {risk_count} risks for extreme conditions")
+            else:
+                print(f"   ❌ Expected risk detection for extreme conditions")
+                success5 = False
+        
+        overall_success = success1 and success2 and success3 and success4 and success5
+        
+        if overall_success:
+            print(f"\n✅ All Agricultural Analysis tests passed!")
+        else:
+            print(f"\n❌ Some Agricultural Analysis tests failed")
+        
+        return overall_success
+
 def main():
     print("🚀 Starting AgriSmart API Testing...")
     print("=" * 60)
