@@ -362,26 +362,86 @@ async def get_commodity_prices(crop: str):
 
 @api_router.post("/agri-analysis")
 async def analyze_agricultural_conditions(request: AgriAnalysisRequest):
-    """Enhanced intelligent agricultural decision-support system"""
+    """Crop-aware intelligent agricultural decision-support system"""
     moisture = request.moisture
     temperature = request.temperature
     humidity = request.humidity
-    crop = request.crop
+    crop = request.crop.lower() if request.crop else None
     market_price = request.market_price
     
-    # 1. Environmental Assessment
-    soil_condition = "Dry" if moisture < 30 else "Wet" if moisture > 75 else "Optimal"
-    temp_impact = "Low" if temperature < 15 else "Heat Stress" if temperature > 35 else "Optimal"
+    # Get crop profile if provided
+    crop_profile = None
+    if crop and crop in CROP_PROFILES:
+        crop_profile = CROP_PROFILES[crop]
+    
+    # 1. Crop Threshold Assessment (NEW)
+    if crop_profile:
+        # Crop-specific moisture evaluation
+        if moisture < crop_profile["moisture_critical_min"]:
+            moisture_status = "Critical - Below Safe Threshold"
+            moisture_deviation = crop_profile["moisture_critical_min"] - moisture
+        elif moisture < crop_profile["moisture_optimal_min"]:
+            moisture_status = "Below Optimal"
+            moisture_deviation = crop_profile["moisture_optimal_min"] - moisture
+        elif moisture <= crop_profile["moisture_optimal_max"]:
+            moisture_status = "Within Optimal Range"
+            moisture_deviation = 0
+        else:
+            moisture_status = "Above Optimal"
+            moisture_deviation = moisture - crop_profile["moisture_optimal_max"]
+        
+        crop_threshold_assessment = {
+            "crop_selected": crop_profile["name"],
+            "optimal_moisture_range": f"{crop_profile['moisture_optimal_min']}-{crop_profile['moisture_optimal_max']}%",
+            "critical_moisture_threshold": f"{crop_profile['moisture_critical_min']}%",
+            "current_moisture_status": moisture_status,
+            "moisture_deviation": abs(moisture_deviation),
+            "water_requirement_level": crop_profile["water_requirement"],
+            "category": crop_profile["category"]
+        }
+    else:
+        crop_threshold_assessment = {
+            "crop_selected": "None",
+            "message": "No crop selected. Generic thresholds will be used.",
+            "recommendation": "Select a crop for precise, crop-specific recommendations"
+        }
+    
+    # 2. Environmental Assessment (Crop-Aware)
+    if crop_profile:
+        # Crop-specific evaluation
+        if moisture < crop_profile["moisture_critical_min"]:
+            soil_condition = "Critical Dry"
+        elif moisture < crop_profile["moisture_optimal_min"]:
+            soil_condition = "Dry"
+        elif moisture <= crop_profile["moisture_optimal_max"]:
+            soil_condition = "Optimal"
+        else:
+            soil_condition = "Wet"
+        
+        # Temperature evaluation relative to crop
+        if temperature < crop_profile["optimal_temp_min"]:
+            temp_impact = "Low"
+        elif temperature <= crop_profile["optimal_temp_max"]:
+            temp_impact = "Optimal"
+        elif temperature <= crop_profile["heat_tolerance"]:
+            temp_impact = "Heat Stress - Tolerable"
+        else:
+            temp_impact = "Heat Stress - Critical"
+    else:
+        # Generic thresholds
+        soil_condition = "Dry" if moisture < 30 else "Wet" if moisture > 75 else "Optimal"
+        temp_impact = "Low" if temperature < 15 else "Heat Stress" if temperature > 35 else "Optimal"
+    
     humidity_influence = "Low" if humidity < 40 else "High" if humidity > 80 else "Moderate"
     
     environmental_assessment = {
         "soil_condition": soil_condition,
-        "soil_description": f"Soil moisture at {moisture}% - {soil_condition} condition detected",
+        "soil_description": f"Soil moisture at {moisture}% - {soil_condition} for {crop_profile['name'] if crop_profile else 'generic crops'}",
         "temperature_impact": temp_impact,
-        "temp_description": f"Temperature at {temperature}°C represents {temp_impact} conditions",
+        "temp_description": f"Temperature at {temperature}°C - {temp_impact} for {crop_profile['name'] if crop_profile else 'most crops'}",
         "humidity_influence": humidity_influence,
         "humidity_description": f"Relative humidity at {humidity}% is {humidity_influence}",
-        "overall_status": "Favorable" if soil_condition == "Optimal" and temp_impact == "Optimal" else "Stressed" if moisture < 30 or temperature > 35 else "Acceptable"
+        "overall_status": "Favorable" if soil_condition == "Optimal" and "Optimal" in temp_impact else "Stressed" if "Critical" in soil_condition or "Critical" in temp_impact else "Acceptable"
     }
     
     # 2. Crop Recommendation Engine
