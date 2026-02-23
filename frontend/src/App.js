@@ -706,18 +706,28 @@ function App() {
       </section>
 
       {/* Configuration Panel */}
-      <section className="py-16 lg:py-24 bg-secondary/30">
+      <section id="config" className="py-16 lg:py-24 bg-secondary/30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-outfit font-bold text-primary mb-4">
-              Cloud Connection Setup
+              IoT Sensor Integration
             </h2>
             <p className="text-base text-foreground/70">
-              Connect to ThingSpeak for live sensor data
+              Connect your field sensors via ThingSpeak IoT platform
             </p>
           </div>
 
-          <Card className="glass-card p-8">
+          <Card className="glass-card p-8 mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-outfit font-bold text-primary">
+                Connection Settings
+              </h3>
+              {simulatorMode && !isLiveMode && (
+                <span className="px-3 py-1 bg-accent/10 text-accent text-xs font-semibold rounded-full">
+                  SIMULATOR MODE
+                </span>
+              )}
+            </div>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">
@@ -754,21 +764,30 @@ function App() {
                 {connecting
                   ? "Connecting..."
                   : isLiveMode
-                  ? "Connected"
-                  : "Connect"}
+                  ? "Connected to Live Sensors"
+                  : "Connect IoT Sensors"}
               </Button>
               {isLiveMode && (
-                <p
-                  className="text-center text-sm text-green-600 font-medium"
-                  data-testid="connected-message"
-                >
-                  Successfully connected! Data updates every 20 seconds.
-                </p>
+                <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  <p
+                    className="text-sm text-green-700 font-medium"
+                    data-testid="connected-message"
+                  >
+                    Live data streaming • Polling every 20 seconds
+                  </p>
+                </div>
+              )}
+              {simulatorMode && !isLiveMode && (
+                <div className="flex items-center gap-2 p-4 bg-accent/10 border border-accent/30 rounded-lg">
+                  <Zap className="h-5 w-5 text-accent" />
+                  <p className="text-sm text-accent/90">
+                    Simulator mode active • Real sensor data available upon connection
+                  </p>
+                </div>
               )}
             </div>
           </Card>
-        </div>
-      </section>
 
       {/* Hardware Setup Guide */}
       <section className="py-16 lg:py-24">
