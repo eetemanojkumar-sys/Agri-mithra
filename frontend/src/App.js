@@ -884,9 +884,14 @@ function App() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Chart */}
               <Card className="glass-card p-8 lg:col-span-2">
-                <h3 className="text-xl font-outfit font-bold text-primary mb-6">
-                  7-Day Price Forecast
-                </h3>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-outfit font-bold text-primary">
+                    7-Day Price Forecast
+                  </h3>
+                  <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full">
+                    ML Model • {priceData.accuracy}% Accuracy
+                  </span>
+                </div>
                 <div className="h-80" data-testid="price-chart">
                   <Line data={chartData} options={chartOptions} />
                 </div>
