@@ -60,6 +60,7 @@ class AgriAnalysisRequest(BaseModel):
     market_price: float = None
 
 class AgriAnalysisResponse(BaseModel):
+    crop_threshold_assessment: Dict[str, Any]
     environmental_assessment: Dict[str, Any]
     crop_recommendation: Dict[str, Any]
     irrigation_advisory: Dict[str, Any]
