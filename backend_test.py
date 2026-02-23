@@ -342,7 +342,8 @@ def main():
         ("Status Endpoints", tester.test_status_endpoints), 
         ("Motor Control", tester.test_motor_control),
         ("Commodity Prices", tester.test_commodity_prices),
-        ("ThingSpeak Integration", tester.test_thingspeak_integration)
+        ("ThingSpeak Integration", tester.test_thingspeak_integration),
+        ("Agricultural Analysis", tester.test_agri_analysis)
     ]
     
     for test_name, test_func in tests:
