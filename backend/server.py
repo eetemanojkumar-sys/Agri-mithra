@@ -228,6 +228,393 @@ async def get_commodity_prices(crop: str):
 
 @api_router.post("/agri-analysis")
 async def analyze_agricultural_conditions(request: AgriAnalysisRequest):
+    """Enhanced intelligent agricultural decision-support system"""
+    moisture = request.moisture
+    temperature = request.temperature
+    humidity = request.humidity
+    crop = request.crop
+    market_price = request.market_price
+    
+    # 1. Environmental Assessment
+    soil_condition = "Dry" if moisture < 30 else "Wet" if moisture > 75 else "Optimal"
+    temp_impact = "Low" if temperature < 15 else "Heat Stress" if temperature > 35 else "Optimal"
+    humidity_influence = "Low" if humidity < 40 else "High" if humidity > 80 else "Moderate"
+    
+    environmental_assessment = {
+        "soil_condition": soil_condition,
+        "soil_description": f"Soil moisture at {moisture}% - {soil_condition} condition detected",
+        "temperature_impact": temp_impact,
+        "temp_description": f"Temperature at {temperature}°C represents {temp_impact} conditions",
+        "humidity_influence": humidity_influence,
+        "humidity_description": f"Relative humidity at {humidity}% is {humidity_influence}",
+        "overall_status": "Favorable" if soil_condition == "Optimal" and temp_impact == "Optimal" else "Stressed" if moisture < 30 or temperature > 35 else "Acceptable"
+    }
+    
+    # 2. Crop Recommendation Engine
+    crop_suggestions = []
+    if moisture >= 40 and 20 <= temperature <= 30:
+        crop_suggestions = [
+            {"crop": "Rice", "reasoning": "High water availability suits paddy cultivation. Moderate temperature ideal for growth."},
+            {"crop": "Sugarcane", "reasoning": "Water-intensive crop. Current moisture and temperature support strong vegetative growth."},
+            {"crop": "Cotton", "reasoning": "Good moisture with moderate warmth promotes boll development."}
+        ]
+    elif moisture < 40 and temperature > 30:
+        crop_suggestions = [
+            {"crop": "Millets", "reasoning": "Drought-resistant with low water requirement. Thrives in high temperature."},
+            {"crop": "Sorghum", "reasoning": "Deep root system handles water stress. Heat-tolerant up to 40°C."},
+            {"crop": "Groundnut", "reasoning": "Moderate water needs. High temperature accelerates pod formation."}
+        ]
+    elif moisture >= 50 and temperature < 25:
+        crop_suggestions = [
+            {"crop": "Wheat", "reasoning": "Cool season crop. High moisture with low temperature ideal for tillering."},
+            {"crop": "Barley", "reasoning": "Winter crop. Current conditions perfect for grain filling stage."},
+            {"crop": "Peas", "reasoning": "Legume thrives in cool, moist conditions. Good nitrogen fixation."}
+        ]
+    else:
+        crop_suggestions = [
+            {"crop": "Maize", "reasoning": "Versatile crop adapts to moderate conditions. Average moisture sufficient."},
+            {"crop": "Beans", "reasoning": "Moderate water and temperature requirements. Quick maturity cycle."},
+            {"crop": "Vegetables", "reasoning": "Mixed vegetable cultivation viable under current balanced conditions."}
+        ]
+    
+    crop_recommendation = {
+        "recommendations": crop_suggestions,
+        "season_alignment": "Kharif (Monsoon)" if temperature > 25 else "Rabi (Winter)",
+        "confidence": "High" if environmental_assessment["overall_status"] == "Favorable" else "Moderate"
+    }
+    
+    # 3. Smart Irrigation Advisory
+    if moisture < 20:
+        irrigation_level = "Immediate Irrigation Required"
+        irrigation_priority = "Critical"
+        water_amount = "20-25mm"
+        timing = "Within 6 hours"
+        reasoning = "Severe moisture deficit. Crop wilting imminent. Emergency irrigation essential."
+    elif moisture < 35:
+        irrigation_level = "Recommended"
+        irrigation_priority = "High"
+        water_amount = "15-20mm"
+        timing = "Within 24 hours"
+        reasoning = "Below optimal range. Preventive irrigation recommended before stress symptoms appear."
+    elif moisture < 50:
+        irrigation_level = "Low Priority"
+        irrigation_priority = "Low"
+        water_amount = "10-15mm (if extended dry period expected)"
+        timing = "Within 48-72 hours"
+        reasoning = "Adequate moisture currently. Monitor daily. Schedule irrigation if no rain forecasted."
+    else:
+        irrigation_level = "No Irrigation Needed"
+        irrigation_priority = "None"
+        water_amount = "0mm"
+        timing = "N/A"
+        reasoning = "Soil moisture adequate. Excess irrigation may cause waterlogging and nutrient leaching."
+    
+    irrigation_advisory = {
+        "level": irrigation_level,
+        "priority": irrigation_priority,
+        "recommended_amount": water_amount,
+        "timing": timing,
+        "reasoning": reasoning,
+        "method": "Drip irrigation (efficient)" if moisture < 40 else "Sprinkler irrigation"
+    }
+    
+    # 4. Stress & Risk Detection
+    detected_risks = []
+    
+    if moisture < 25:
+        detected_risks.append({
+            "type": "Water Stress",
+            "severity": "High",
+            "impact": "Leaf wilting, reduced photosynthesis, yield loss up to 40%",
+            "indicator": "Visual: Leaf curling, soil cracking"
+        })
+    
+    if temperature > 38:
+        detected_risks.append({
+            "type": "Heat Stress",
+            "severity": "Critical",
+            "impact": "Protein denaturation, pollen sterility, fruit drop",
+            "indicator": "Scorched leaf edges, flower abortion"
+        })
+    elif temperature > 35:
+        detected_risks.append({
+            "type": "Heat Stress",
+            "severity": "Moderate",
+            "impact": "Reduced flowering, accelerated maturity, quality decline",
+            "indicator": "Rapid plant development, small fruit size"
+        })
+    
+    if moisture > 80:
+        detected_risks.append({
+            "type": "Excess Moisture Risk",
+            "severity": "High",
+            "impact": "Root rot, oxygen deficiency, nutrient leaching",
+            "indicator": "Standing water, yellow leaves, fungal growth"
+        })
+    
+    if temperature > 32 and humidity < 45:
+        detected_risks.append({
+            "type": "High Evaporation Conditions",
+            "severity": "Moderate",
+            "impact": "Rapid water loss through transpiration, increased irrigation frequency needed",
+            "indicator": "Soil dries quickly, plants droop in afternoon"
+        })
+    
+    if (temperature >= 25 and temperature <= 32) and humidity > 75 and moisture > 60:
+        detected_risks.append({
+            "type": "Disease-Favorable Environment",
+            "severity": "High",
+            "impact": "Fungal diseases (leaf blight, powdery mildew), bacterial infections",
+            "indicator": "Humid conditions ideal for pathogen proliferation"
+        })
+    
+    if not detected_risks:
+        detected_risks.append({
+            "type": "No Critical Risks",
+            "severity": "Low",
+            "impact": "Conditions within acceptable range",
+            "indicator": "Continue routine monitoring"
+        })
+    
+    stress_risk_detection = {
+        "identified_risks": detected_risks,
+        "risk_score": sum(1 for r in detected_risks if r["severity"] in ["High", "Critical"]) * 30 + sum(1 for r in detected_risks if r["severity"] == "Moderate") * 15,
+        "overall_threat_level": "Critical" if any(r["severity"] == "Critical" for r in detected_risks) else "High" if any(r["severity"] == "High" for r in detected_risks) else "Low"
+    }
+    
+    # 5. Predictive Environmental Insights
+    # Moisture trend prediction
+    if moisture < 30 and temperature > 32:
+        moisture_trend = "Rapid Loss"
+        time_to_critical = "12-24 hours"
+        trend_reasoning = "High temperature accelerating evapotranspiration. Moisture depleting rapidly."
+    elif moisture < 40:
+        moisture_trend = "Drying"
+        time_to_critical = "2-3 days"
+        trend_reasoning = "Gradual moisture reduction. Monitor closely and plan irrigation."
+    else:
+        moisture_trend = "Stabilizing"
+        time_to_critical = ">5 days"
+        trend_reasoning = "Adequate reserves. Moisture stable under current conditions."
+    
+    # Crop growth suitability
+    if environmental_assessment["overall_status"] == "Favorable":
+        growth_suitability = "Excellent"
+        growth_comment = "Optimal conditions for photosynthesis and nutrient uptake. Expect vigorous growth."
+    elif environmental_assessment["overall_status"] == "Acceptable":
+        growth_suitability = "Moderate"
+        growth_comment = "Adequate for growth but sub-optimal. Minor interventions may boost productivity."
+    else:
+        growth_suitability = "Poor"
+        growth_comment = "Stress conditions limiting growth. Immediate corrective measures essential."
+    
+    predictive_insights = {
+        "moisture_trend": moisture_trend,
+        "time_to_critical_moisture": time_to_critical,
+        "trend_reasoning": trend_reasoning,
+        "growth_suitability": growth_suitability,
+        "growth_comment": growth_comment,
+        "evapotranspiration_rate": "High (>6mm/day)" if temperature > 32 else "Moderate (4-6mm/day)" if temperature > 25 else "Low (<4mm/day)",
+        "next_24h_outlook": "Condition likely to deteriorate" if moisture_trend == "Rapid Loss" else "Stable conditions expected"
+    }
+    
+    # 6. Commodity Price Intelligence
+    if market_price and crop:
+        # Fetch historical data from our commodity data
+        crop_lower = crop.lower()
+        if crop_lower in COMMODITY_DATA:
+            crop_data = COMMODITY_DATA[crop_lower]
+            current_baseline = crop_data["current"]
+            forecast_price = crop_data["forecast"]
+            
+            price_change = ((market_price - current_baseline) / current_baseline) * 100
+            
+            if price_change > 10:
+                price_trend = "Favorable"
+                trend_description = f"Price {price_change:.1f}% above baseline. Strong market demand."
+            elif price_change < -10:
+                price_trend = "Unfavorable"
+                trend_description = f"Price {price_change:.1f}% below baseline. Market oversupply or weak demand."
+            else:
+                price_trend = "Stable"
+                trend_description = f"Price within ±10% of baseline. Normal market conditions."
+            
+            # Selling strategy
+            if price_change > 15 and environmental_assessment["overall_status"] == "Favorable":
+                selling_strategy = "Sell Immediately"
+                strategy_reasoning = "High market price + good crop quality. Maximize returns now."
+            elif price_change < -10:
+                selling_strategy = "Consider Storage"
+                strategy_reasoning = "Low current price. Store if possible and sell when market recovers."
+            else:
+                selling_strategy = "Monitor Market"
+                strategy_reasoning = "Stable prices. Track market trends for next 7 days before deciding."
+            
+            market_intelligence = {
+                "price_trend": price_trend,
+                "trend_description": trend_description,
+                "current_market_price": market_price,
+                "baseline_price": current_baseline,
+                "price_change_percent": round(price_change, 2),
+                "selling_strategy": selling_strategy,
+                "strategy_reasoning": strategy_reasoning,
+                "forecast_7day": forecast_price,
+                "market_volatility": "High" if abs(price_change) > 20 else "Moderate" if abs(price_change) > 10 else "Low"
+            }
+        else:
+            market_intelligence = {
+                "message": "Price data not available for this crop",
+                "recommendation": "Contact local mandi for current rates"
+            }
+    else:
+        market_intelligence = {
+            "message": "Market price analysis not requested",
+            "note": "Provide crop name and current market price for price intelligence"
+        }
+    
+    # 7. Integrated Decision Support
+    if market_price and crop and crop.lower() in COMMODITY_DATA:
+        # Combine environmental + market insights
+        env_score = 100 if environmental_assessment["overall_status"] == "Favorable" else 60 if environmental_assessment["overall_status"] == "Acceptable" else 30
+        market_score = 100 if market_intelligence.get("price_trend") == "Favorable" else 50 if market_intelligence.get("price_trend") == "Stable" else 20
+        
+        combined_score = (env_score * 0.6) + (market_score * 0.4)  # Environmental weighted higher
+        
+        if combined_score >= 80:
+            decision = "Highly Favorable"
+            recommendation = "Excellent conditions for both crop growth and market returns. Maintain current practices."
+        elif combined_score >= 60:
+            decision = "Favorable with Caution"
+            recommendation = "Good overall conditions but monitor weak areas (environmental or market)."
+        else:
+            decision = "Challenging Conditions"
+            recommendation = "Address environmental stress first. Delay harvest if market is weak. Focus on crop recovery."
+        
+        # Specific scenario logic
+        if environmental_assessment["overall_status"] == "Favorable" and market_intelligence.get("price_trend") == "Favorable":
+            scenario = "Ideal Scenario"
+            action = "Proceed with harvest at crop maturity. Market timing perfect."
+        elif environmental_assessment["overall_status"] == "Stressed" and market_intelligence.get("price_trend") == "Unfavorable":
+            scenario = "Worst Case"
+            action = "Focus on crop recovery with irrigation/nutrition. Delay harvest. Wait for better market."
+        elif environmental_assessment["overall_status"] == "Favorable" and market_intelligence.get("price_trend") == "Unfavorable":
+            scenario = "Good Crop, Weak Market"
+            action = "Consider storage facilities. Sell only if storage not available or perishable crop."
+        else:
+            scenario = "Poor Crop, Good Market"
+            action = "Harvest whatever yield possible to capture good market price. Invest in better practices next season."
+        
+        integrated_decision = {
+            "overall_decision": decision,
+            "combined_score": round(combined_score, 1),
+            "recommendation": recommendation,
+            "scenario": scenario,
+            "action_plan": action,
+            "environmental_weight": "60%",
+            "market_weight": "40%"
+        }
+    else:
+        integrated_decision = {
+            "message": "Integrated decision requires both environmental data and market price",
+            "environmental_status": environmental_assessment["overall_status"],
+            "note": "Provide crop and market price for comprehensive decision support"
+        }
+    
+    # 8. Corrective & Advisory Actions
+    corrective_actions = []
+    
+    if moisture < 30:
+        corrective_actions.append("🚰 Immediate Irrigation: Apply 15-20mm water using drip/sprinkler system")
+        corrective_actions.append("🌾 Mulching: Apply 5-7cm organic mulch around plant base to conserve moisture")
+    
+    if temperature > 35:
+        corrective_actions.append("☀️ Shade Protection: Install 30-50% shade nets during 11 AM - 3 PM")
+        corrective_actions.append("💦 Foliar Spray: Apply cool water mist in evening to reduce leaf temperature")
+    
+    if humidity > 80 and moisture > 60:
+        corrective_actions.append("🌬️ Improve Air Circulation: Increase plant spacing, prune dense foliage")
+        corrective_actions.append("🛡️ Fungicide Application: Preventive spray of copper-based or bio-fungicide")
+    
+    if moisture > 75:
+        corrective_actions.append("🚧 Create Drainage: Dig channels to remove excess water, prevent waterlogging")
+        corrective_actions.append("⏸️ Stop Irrigation: Skip next 2-3 irrigation cycles, allow soil to drain")
+    
+    if temperature < 15:
+        corrective_actions.append("🔥 Frost Protection: Cover crops with plastic sheets during night hours")
+        corrective_actions.append("⏰ Delay Planting: Wait for temperature to rise above 18°C for warm-season crops")
+    
+    if market_intelligence.get("selling_strategy") == "Consider Storage":
+        corrective_actions.append("📦 Arrange Storage: Secure warehouse space, ensure proper ventilation and pest control")
+    
+    if stress_risk_detection["overall_threat_level"] == "High":
+        corrective_actions.append("👨‍🌾 Expert Consultation: Contact agricultural extension officer for site visit")
+    
+    if not corrective_actions or all(action.startswith("Continue") for action in corrective_actions):
+        corrective_actions.append("✅ Continue Current Management: Conditions optimal, maintain routine monitoring")
+        corrective_actions.append("📊 Daily Monitoring: Record moisture and temperature readings for trend analysis")
+    
+    # 9. Alert Generation Logic
+    alerts = []
+    
+    if moisture < 20:
+        alerts.append({
+            "type": "CRITICAL",
+            "category": "Irrigation",
+            "message": "⚠️ CRITICAL: Soil moisture below 20%. Immediate irrigation required to prevent crop damage.",
+            "action": "Irrigate within 6 hours"
+        })
+    
+    if temperature > 40:
+        alerts.append({
+            "type": "CRITICAL",
+            "category": "Heat Stress",
+            "message": "🌡️ EXTREME HEAT: Temperature exceeds 40°C. Provide shade and increase irrigation frequency.",
+            "action": "Install shade nets immediately"
+        })
+    
+    if stress_risk_detection["overall_threat_level"] == "Critical":
+        alerts.append({
+            "type": "URGENT",
+            "category": "Environmental Stress",
+            "message": "⚠️ Multiple stress factors detected. Crop health at risk.",
+            "action": "Review detailed risk assessment and take corrective actions"
+        })
+    
+    if market_price and market_intelligence.get("price_trend") == "Favorable" and market_intelligence.get("price_change_percent", 0) > 20:
+        alerts.append({
+            "type": "OPPORTUNITY",
+            "category": "Market",
+            "message": f"💰 FAVORABLE MARKET: {crop} price up {market_intelligence['price_change_percent']:.1f}%. Consider selling.",
+            "action": "Harvest and sell if crop is mature"
+        })
+    
+    if moisture_trend == "Rapid Loss":
+        alerts.append({
+            "type": "WARNING",
+            "category": "Predictive",
+            "message": "📉 Moisture depleting rapidly. Critical level expected within 12-24 hours.",
+            "action": "Schedule irrigation immediately"
+        })
+    
+    if not alerts:
+        alerts.append({
+            "type": "INFO",
+            "category": "Status",
+            "message": "✅ No critical issues detected. System operating normally.",
+            "action": "Continue monitoring"
+        })
+    
+    return {
+        "environmental_assessment": environmental_assessment,
+        "crop_recommendation": crop_recommendation,
+        "irrigation_advisory": irrigation_advisory,
+        "stress_risk_detection": stress_risk_detection,
+        "predictive_insights": predictive_insights,
+        "market_intelligence": market_intelligence,
+        "integrated_decision": integrated_decision,
+        "corrective_actions": corrective_actions,
+        "alerts": alerts
+    }
     """Intelligent agricultural decision-support system"""
     moisture = request.moisture
     temperature = request.temperature
