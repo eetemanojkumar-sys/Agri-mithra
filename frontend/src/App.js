@@ -100,6 +100,27 @@ function App() {
     fetchCommodityPrices(selectedCrop);
   }, [selectedCrop]);
 
+  // Fetch AI analysis when sensor data changes
+  useEffect(() => {
+    fetchAgriAnalysis();
+  }, [sensorData]);
+
+  const fetchAgriAnalysis = async () => {
+    setAnalysisLoading(true);
+    try {
+      const response = await axios.post(`${API}/agri-analysis`, {
+        moisture: sensorData.moisture,
+        temperature: sensorData.temperature,
+        humidity: sensorData.humidity,
+      });
+      setAgriAnalysis(response.data);
+    } catch (error) {
+      console.error("Error fetching agricultural analysis:", error);
+    } finally {
+      setAnalysisLoading(false);
+    }
+  };
+
   const fetchCommodityPrices = async (crop) => {
     setLoadingPrice(true);
     try {
