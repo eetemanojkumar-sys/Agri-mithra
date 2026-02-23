@@ -150,7 +150,7 @@ function App() {
       if (response.data.success) {
         setSensorData(response.data.data);
         setIsLiveMode(true);
-        setSimulatorMode(false);
+        setConnectionMode("live");
         setLastUpdated(new Date());
 
         // Start polling every 20 seconds
@@ -176,6 +176,18 @@ function App() {
     } finally {
       setConnecting(false);
     }
+  };
+
+  const startSimulator = () => {
+    setConnectionMode("simulator");
+    setIsLiveMode(false);
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+  };
+
+  const disconnectSensor = () => {
+    setConnectionMode("offline");
+    setIsLiveMode(false);
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
   };
 
   const toggleMotor = async () => {
