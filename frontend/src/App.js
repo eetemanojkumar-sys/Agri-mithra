@@ -286,24 +286,42 @@ function App() {
                 onClick={() => scrollToSection("monitoring")}
                 className="text-sm font-medium text-foreground hover:text-primary transition-colors"
               >
-                Monitor
+                Dashboard
               </button>
               <button
                 data-testid="nav-prices-btn"
                 onClick={() => scrollToSection("prices")}
                 className="text-sm font-medium text-foreground hover:text-primary transition-colors"
               >
-                Prices
+                Market Forecast
               </button>
-              <div className="flex items-center gap-2">
+              <button
+                onClick={() => scrollToSection("config")}
+                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                IoT Setup
+              </button>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10">
                 {isLiveMode ? (
-                  <Wifi className="h-4 w-4 text-green-600" data-testid="live-indicator" />
+                  <>
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" data-testid="live-indicator" />
+                    <span className="text-xs font-semibold text-primary" data-testid="mode-label">
+                      LIVE
+                    </span>
+                  </>
+                ) : simulatorMode ? (
+                  <>
+                    <Zap className="h-3 w-3 text-accent" data-testid="simulator-indicator" />
+                    <span className="text-xs font-semibold text-accent" data-testid="mode-label">
+                      SIMULATOR
+                    </span>
+                  </>
                 ) : (
-                  <WifiOff className="h-4 w-4 text-gray-400" data-testid="demo-indicator" />
+                  <>
+                    <WifiOff className="h-3 w-3 text-gray-400" />
+                    <span className="text-xs font-medium text-gray-600">OFFLINE</span>
+                  </>
                 )}
-                <span className="text-xs font-medium" data-testid="mode-label">
-                  {isLiveMode ? "Live" : "Demo"}
-                </span>
               </div>
             </div>
           </div>
