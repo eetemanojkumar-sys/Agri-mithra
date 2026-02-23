@@ -400,11 +400,17 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-outfit font-bold text-primary mb-4">
-              Real-Time Monitoring Dashboard
+              Real-Time Field Monitoring
             </h2>
-            <p className="text-base text-foreground/70">
-              Last updated: {lastUpdated.toLocaleTimeString()}
-            </p>
+            <div className="flex items-center justify-center gap-4 text-base text-foreground/70">
+              <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
+              {simulatorMode && !isLiveMode && (
+                <>
+                  <span>•</span>
+                  <span className="text-accent font-medium">Simulator Active (Testing Mode)</span>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Sensor Cards Grid */}
