@@ -341,8 +341,8 @@ function App() {
               Smart Crop Irrigation Monitoring & Commodity Price Predictor
             </h1>
             <p className="text-base sm:text-lg text-foreground/80 mb-12 max-w-2xl mx-auto">
-              IoT + Machine Learning based Smart Agriculture System for optimized
-              water usage and market insights
+              AI-powered agricultural intelligence platform combining real-time IoT monitoring 
+              with machine learning forecasts for optimized farming decisions
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
