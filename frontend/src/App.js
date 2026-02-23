@@ -789,6 +789,8 @@ function App() {
               )}
             </div>
           </Card>
+        </div>
+      </section>
 
       {/* Hardware Setup Guide */}
       <section className="py-16 lg:py-24">
