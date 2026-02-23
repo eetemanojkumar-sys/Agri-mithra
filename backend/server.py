@@ -56,15 +56,19 @@ class AgriAnalysisRequest(BaseModel):
     moisture: float
     temperature: float
     humidity: float
+    crop: str = None
+    market_price: float = None
 
 class AgriAnalysisResponse(BaseModel):
     environmental_assessment: Dict[str, Any]
     crop_recommendation: Dict[str, Any]
-    irrigation_decision: Dict[str, Any]
-    yield_insight: Dict[str, Any]
-    fertilizer_advisory: Dict[str, Any]
-    risk_detection: Dict[str, Any]
+    irrigation_advisory: Dict[str, Any]
+    stress_risk_detection: Dict[str, Any]
+    predictive_insights: Dict[str, Any]
+    market_intelligence: Dict[str, Any]
+    integrated_decision: Dict[str, Any]
     corrective_actions: List[str]
+    alerts: List[Dict[str, Any]]
 
 # Motor state (in-memory for demo)
 motor_state = {"status": "off", "last_updated": datetime.now(timezone.utc).isoformat()}
