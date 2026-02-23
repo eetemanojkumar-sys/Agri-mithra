@@ -150,6 +150,7 @@ function App() {
       if (response.data.success) {
         setSensorData(response.data.data);
         setIsLiveMode(true);
+        setSimulatorMode(false);
         setLastUpdated(new Date());
 
         // Start polling every 20 seconds
