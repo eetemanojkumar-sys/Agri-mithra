@@ -103,10 +103,24 @@ function App() {
     fetchCommodityPrices(selectedCrop);
   }, [selectedCrop]);
 
+  // Fetch available crops on mount
+  useEffect(() => {
+    fetchAvailableCrops();
+  }, []);
+
   // Fetch AI analysis when sensor data changes
   useEffect(() => {
     fetchAgriAnalysis();
-  }, [sensorData]);
+  }, [sensorData, selectedAnalysisCrop]);
+
+  const fetchAvailableCrops = async () => {
+    try {
+      const response = await axios.get(`${API}/crops`);
+      setAvailableCrops(response.data.crops);
+    } catch (error) {
+      console.error("Error fetching crops:", error);
+    }
+  };
 
   const fetchAgriAnalysis = async () => {
     setAnalysisLoading(true);
@@ -115,6 +129,8 @@ function App() {
         moisture: sensorData.moisture,
         temperature: sensorData.temperature,
         humidity: sensorData.humidity,
+        crop: selectedAnalysisCrop || null,
+        market_price: null,
       });
       setAgriAnalysis(response.data);
     } catch (error) {
