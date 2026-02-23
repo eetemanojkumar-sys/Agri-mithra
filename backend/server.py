@@ -608,7 +608,7 @@ async def analyze_agricultural_conditions(request: AgriAnalysisRequest):
         "recommended_amount": water_amount,
         "timing": timing,
         "reasoning": reasoning,
-        "method": "Drip irrigation (efficient)" if moisture < optimal_min if crop_profile else moisture < 40 else "Sprinkler irrigation",
+        "method": "Drip irrigation (efficient)" if (moisture < (optimal_min if crop_profile else 40)) else "Sprinkler irrigation",
         "crop_water_requirement": crop_profile["water_requirement"] if crop_profile else "N/A"
     }
     
