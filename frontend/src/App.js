@@ -743,11 +743,23 @@ function App() {
               <h3 className="text-lg font-outfit font-bold text-primary">
                 Connection Settings
               </h3>
-              {simulatorMode && !isLiveMode && (
-                <span className="px-3 py-1 bg-accent/10 text-accent text-xs font-semibold rounded-full">
-                  SIMULATOR MODE
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {connectionMode === "simulator" && (
+                  <span className="px-3 py-1 bg-accent/10 text-accent text-xs font-semibold rounded-full">
+                    SIMULATOR MODE
+                  </span>
+                )}
+                {connectionMode === "live" && (
+                  <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                    CONNECTED
+                  </span>
+                )}
+                {connectionMode === "offline" && (
+                  <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">
+                    OFFLINE
+                  </span>
+                )}
+              </div>
             </div>
             <div className="space-y-4">
               <div>
@@ -760,6 +772,7 @@ function App() {
                   placeholder="Enter Channel ID"
                   value={channelId}
                   onChange={(e) => setChannelId(e.target.value)}
+                  disabled={connectionMode === "live"}
                   className="h-12"
                 />
               </div>
@@ -773,22 +786,35 @@ function App() {
                   placeholder="Enter Read API Key"
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
+                  disabled={connectionMode === "live"}
                   className="h-12"
                 />
               </div>
-              <Button
-                data-testid="connect-btn"
-                onClick={connectThingSpeak}
-                disabled={connecting || isLiveMode}
-                className="w-full bg-primary hover:bg-primary/90 text-white h-12 font-medium"
-              >
-                {connecting
-                  ? "Connecting..."
-                  : isLiveMode
-                  ? "Connected to Live Sensors"
-                  : "Connect IoT Sensors"}
-              </Button>
-              {isLiveMode && (
+              <div className="flex gap-3">
+                <Button
+                  data-testid="connect-btn"
+                  onClick={connectThingSpeak}
+                  disabled={connecting || connectionMode === "live"}
+                  className="flex-1 bg-primary hover:bg-primary/90 text-white h-12 font-medium"
+                >
+                  {connecting
+                    ? "Connecting..."
+                    : connectionMode === "live"
+                    ? "Connected to Live Sensors"
+                    : "Connect IoT Sensors"}
+                </Button>
+                {connectionMode === "live" && (
+                  <Button
+                    data-testid="disconnect-btn"
+                    onClick={disconnectSensor}
+                    variant="outline"
+                    className="border-2 border-red-500 text-red-500 hover:bg-red-50 h-12 font-medium"
+                  >
+                    Disconnect
+                  </Button>
+                )}
+              </div>
+              {connectionMode === "live" && (
                 <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg">
                   <CheckCircle2 className="h-5 w-5 text-green-600" />
                   <p
@@ -799,12 +825,41 @@ function App() {
                   </p>
                 </div>
               )}
-              {simulatorMode && !isLiveMode && (
+              {connectionMode === "simulator" && (
                 <div className="flex items-center gap-2 p-4 bg-accent/10 border border-accent/30 rounded-lg">
                   <Zap className="h-5 w-5 text-accent" />
-                  <p className="text-sm text-accent/90">
-                    Simulator mode active • Real sensor data available upon connection
-                  </p>
+                  <div className="flex-1">
+                    <p className="text-sm text-accent/90 font-medium">
+                      Simulator mode active • Real sensor data available upon connection
+                    </p>
+                  </div>
+                  <Button
+                    data-testid="stop-simulator-btn"
+                    onClick={disconnectSensor}
+                    size="sm"
+                    variant="outline"
+                    className="text-xs"
+                  >
+                    Stop Simulator
+                  </Button>
+                </div>
+              )}
+              {connectionMode === "offline" && (
+                <div className="flex items-center gap-2 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                  <WifiOff className="h-5 w-5 text-gray-400" />
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-600">
+                      System offline • Connect sensors or start simulator for testing
+                    </p>
+                  </div>
+                  <Button
+                    data-testid="start-simulator-btn"
+                    onClick={startSimulator}
+                    size="sm"
+                    className="bg-accent hover:bg-accent/90 text-white text-xs"
+                  >
+                    Start Simulator
+                  </Button>
                 </div>
               )}
             </div>
