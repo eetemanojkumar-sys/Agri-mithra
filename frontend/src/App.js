@@ -351,7 +351,7 @@ function App() {
                 className="bg-primary hover:bg-primary/90 text-white px-8 py-6 text-base rounded-full font-medium transition-all hover:scale-105"
                 size="lg"
               >
-                View Live Monitoring
+                Launch Dashboard
               </Button>
               <Button
                 data-testid="hero-forecast-btn"
@@ -360,7 +360,7 @@ function App() {
                 className="border-2 border-primary text-primary hover:bg-primary hover:text-white px-8 py-6 text-base rounded-full font-medium transition-all hover:scale-105"
                 size="lg"
               >
-                Check Price Forecast
+                View Market Insights
               </Button>
             </div>
           </motion.div>
