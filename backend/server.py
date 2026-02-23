@@ -883,6 +883,7 @@ async def analyze_agricultural_conditions(request: AgriAnalysisRequest):
         })
     
     return {
+        "crop_threshold_assessment": crop_threshold_assessment,
         "environmental_assessment": environmental_assessment,
         "crop_recommendation": crop_recommendation,
         "irrigation_advisory": irrigation_advisory,
