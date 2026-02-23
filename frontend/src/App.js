@@ -81,7 +81,7 @@ function App() {
 
   // Demo mode simulation
   useEffect(() => {
-    if (!isLiveMode) {
+    if (simulatorMode && !isLiveMode) {
       const demoInterval = setInterval(() => {
         setSensorData({
           moisture: Math.floor(Math.random() * 40) + 20,
@@ -94,7 +94,7 @@ function App() {
 
       return () => clearInterval(demoInterval);
     }
-  }, [isLiveMode]);
+  }, [simulatorMode, isLiveMode]);
 
   // Fetch commodity price data
   useEffect(() => {
