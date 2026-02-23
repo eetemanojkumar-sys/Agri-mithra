@@ -588,32 +588,30 @@ function App() {
                 <div>
                   {!showDetailedAnalysis ? (
                     <div className="text-center py-8" data-testid="quick-recommendation">
-                      {agriAnalysis.irrigation_decision.irrigation_needed ? (
+                      {agriAnalysis.irrigation_advisory.priority === "Critical" || agriAnalysis.irrigation_advisory.priority === "High" ? (
                         <div>
                           <AlertTriangle className="h-16 w-16 text-accent mx-auto mb-4" />
                           <div className="text-2xl font-outfit font-bold text-accent mb-2">
-                            {agriAnalysis.irrigation_decision.urgency === "immediate"
-                              ? "Irrigate Now!"
-                              : "Irrigation Recommended"}
+                            {agriAnalysis.irrigation_advisory.level}
                           </div>
                           <p className="text-foreground/70 mb-4">
-                            {agriAnalysis.irrigation_decision.reasoning}
+                            {agriAnalysis.irrigation_advisory.reasoning}
                           </p>
                           <div className="text-sm text-foreground/60">
-                            Apply: {agriAnalysis.irrigation_decision.recommended_water_amount}
+                            Apply: {agriAnalysis.irrigation_advisory.recommended_amount}
                           </div>
                         </div>
                       ) : (
                         <div>
                           <CheckCircle2 className="h-16 w-16 text-green-600 mx-auto mb-4" />
                           <div className="text-2xl font-outfit font-bold text-green-600 mb-2">
-                            Optimal Conditions
+                            {agriAnalysis.irrigation_advisory.level}
                           </div>
                           <p className="text-foreground/70 mb-4">
-                            {agriAnalysis.irrigation_decision.reasoning}
+                            {agriAnalysis.irrigation_advisory.reasoning}
                           </p>
                           <div className="text-sm text-foreground/60">
-                            {agriAnalysis.yield_insight.growth_description}
+                            {agriAnalysis.predictive_insights.growth_comment}
                           </div>
                         </div>
                       )}
