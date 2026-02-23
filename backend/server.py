@@ -360,6 +360,22 @@ async def get_commodity_prices(crop: str):
         "accuracy": 94.5
     }
 
+@api_router.get("/crops")
+async def get_available_crops():
+    """Get list of available crops with their profiles"""
+    crops = []
+    for crop_id, profile in CROP_PROFILES.items():
+        crops.append({
+            "id": crop_id,
+            "name": profile["name"],
+            "category": profile["category"],
+            "water_requirement": profile["water_requirement"],
+            "optimal_moisture_range": f"{profile['moisture_optimal_min']}-{profile['moisture_optimal_max']}%",
+            "optimal_temp_range": f"{profile['optimal_temp_min']}-{profile['optimal_temp_max']}°C",
+            "growth_cycle": f"{profile['growth_cycle_days']} days"
+        })
+    return {"crops": crops, "total": len(crops)}
+
 @api_router.post("/agri-analysis")
 async def analyze_agricultural_conditions(request: AgriAnalysisRequest):
     """Crop-aware intelligent agricultural decision-support system"""
