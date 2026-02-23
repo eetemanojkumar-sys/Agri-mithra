@@ -636,50 +636,50 @@ function App() {
                           Crop Recommendation
                         </h4>
                         <div className="flex flex-wrap gap-2 mb-2">
-                          {agriAnalysis.crop_recommendation.recommended_crops.map((crop, idx) => (
+                          {agriAnalysis.crop_recommendation.recommendations.map((item, idx) => (
                             <span
                               key={idx}
                               className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium"
                             >
-                              {crop}
+                              {item.crop}
                             </span>
                           ))}
                         </div>
                         <p className="text-sm text-foreground/70">
-                          {agriAnalysis.crop_recommendation.reasoning}
+                          Season: {agriAnalysis.crop_recommendation.season_alignment}
                         </p>
                       </div>
 
                       {/* Yield Insight */}
                       <div>
                         <h4 className="font-outfit font-bold text-primary mb-2">
-                          Yield & Growth Insight
+                          Predictive Insights
                         </h4>
                         <div className="space-y-1 text-sm">
-                          <p className="font-medium">Status: {agriAnalysis.yield_insight.yield_status}</p>
-                          <p>Predicted Yield: {agriAnalysis.yield_insight.predicted_yield}</p>
-                          <p>{agriAnalysis.yield_insight.growth_description}</p>
+                          <p className="font-medium">Moisture Trend: {agriAnalysis.predictive_insights.moisture_trend}</p>
+                          <p>Time to Critical: {agriAnalysis.predictive_insights.time_to_critical_moisture}</p>
+                          <p>{agriAnalysis.predictive_insights.growth_comment}</p>
                         </div>
                       </div>
 
                       {/* Risk Detection */}
                       <div>
                         <h4 className="font-outfit font-bold text-primary mb-2">
-                          Risk Detection ({agriAnalysis.risk_detection.risk_count} active)
+                          Risk Detection (Score: {agriAnalysis.stress_risk_detection.risk_score})
                         </h4>
                         <div className="space-y-2">
-                          {agriAnalysis.risk_detection.identified_risks.map((risk, idx) => (
+                          {agriAnalysis.stress_risk_detection.identified_risks.map((risk, idx) => (
                             <div
                               key={idx}
                               className={`p-2 rounded text-sm ${
-                                risk.severity === "high"
+                                risk.severity === "High" || risk.severity === "Critical"
                                   ? "bg-red-50 border border-red-200"
-                                  : risk.severity === "medium"
+                                  : risk.severity === "Moderate"
                                   ? "bg-yellow-50 border border-yellow-200"
                                   : "bg-green-50 border border-green-200"
                               }`}
                             >
-                              <span className="font-medium">{risk.type}</span>: {risk.description}
+                              <span className="font-medium">{risk.type}</span>: {risk.impact}
                             </div>
                           ))}
                         </div>
