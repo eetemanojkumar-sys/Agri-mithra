@@ -76,6 +76,8 @@ function App() {
   const [agriAnalysis, setAgriAnalysis] = useState(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [showDetailedAnalysis, setShowDetailedAnalysis] = useState(false);
+  const [selectedAnalysisCrop, setSelectedAnalysisCrop] = useState("");
+  const [availableCrops, setAvailableCrops] = useState([]);
 
   const pollIntervalRef = useRef(null);
 
