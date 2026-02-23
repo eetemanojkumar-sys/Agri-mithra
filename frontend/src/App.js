@@ -580,7 +580,7 @@ function App() {
 
             {/* AI Recommendation */}
             <Card className="glass-card p-8">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <Sprout className="h-8 w-8 text-primary" />
                   <h3 className="text-xl font-outfit font-bold text-primary">
@@ -598,12 +598,76 @@ function App() {
                 </Button>
               </div>
 
+              {/* Crop Selector */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">
+                  Select Your Crop (Optional)
+                </label>
+                <select
+                  data-testid="crop-selector"
+                  value={selectedAnalysisCrop}
+                  onChange={(e) => setSelectedAnalysisCrop(e.target.value)}
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background text-foreground"
+                >
+                  <option value="">No crop selected (Get recommendations)</option>
+                  {availableCrops.map((crop) => (
+                    <option key={crop.id} value={crop.id}>
+                      {crop.name} - {crop.category}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-foreground/60 mt-1">
+                  Selecting a crop provides crop-specific thresholds and precise recommendations
+                </p>
+              </div>
+
               {analysisLoading ? (
                 <div className="text-center py-8">
                   <div className="inline-block w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : agriAnalysis ? (
                 <div>
+                  {/* Crop Threshold Assessment - Show when crop is selected */}
+                  {selectedAnalysisCrop && agriAnalysis.crop_threshold_assessment?.crop_selected !== "None" && (
+                    <div className="mb-4 p-4 bg-primary/5 rounded-lg border border-primary/20" data-testid="crop-threshold-card">
+                      <h4 className="font-outfit font-bold text-primary mb-2 flex items-center gap-2">
+                        <Sprout className="h-5 w-5" />
+                        Crop Threshold Assessment - {agriAnalysis.crop_threshold_assessment.crop_selected}
+                      </h4>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <span className="text-foreground/70">Optimal Range:</span>
+                          <span className="ml-2 font-semibold text-primary">
+                            {agriAnalysis.crop_threshold_assessment.optimal_moisture_range}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-foreground/70">Critical Threshold:</span>
+                          <span className="ml-2 font-semibold text-accent">
+                            {agriAnalysis.crop_threshold_assessment.critical_moisture_threshold}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-foreground/70">Current Status:</span>
+                          <span className={`ml-2 font-semibold ${
+                            agriAnalysis.crop_threshold_assessment.current_moisture_status.includes("Critical") ? "text-red-600" :
+                            agriAnalysis.crop_threshold_assessment.current_moisture_status.includes("Below") ? "text-orange-600" :
+                            agriAnalysis.crop_threshold_assessment.current_moisture_status.includes("Optimal") ? "text-green-600" :
+                            "text-blue-600"
+                          }`}>
+                            {agriAnalysis.crop_threshold_assessment.current_moisture_status}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-foreground/70">Water Requirement:</span>
+                          <span className="ml-2 font-semibold">
+                            {agriAnalysis.crop_threshold_assessment.water_requirement_level}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {!showDetailedAnalysis ? (
                     <div className="text-center py-8" data-testid="quick-recommendation">
                       {agriAnalysis.irrigation_advisory.priority === "Critical" || agriAnalysis.irrigation_advisory.priority === "High" ? (
