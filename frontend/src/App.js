@@ -65,7 +65,7 @@ function App() {
   const [isLiveMode, setIsLiveMode] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [connecting, setConnecting] = useState(false);
-  const [simulatorMode, setSimulatorMode] = useState(true);
+  const [connectionMode, setConnectionMode] = useState("offline"); // "offline", "simulator", "live"
 
   // Commodity price state
   const [selectedCrop, setSelectedCrop] = useState("rice");
