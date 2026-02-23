@@ -971,7 +971,10 @@ function App() {
             <h3 className="text-2xl font-outfit font-bold">AgriSmart</h3>
           </div>
           <p className="text-white/80 mb-2">
-            IoT + Machine Learning for Smart Agriculture
+            AI-Powered Agricultural Intelligence Platform
+          </p>
+          <p className="text-sm text-white/60 mb-4">
+            Real-time IoT monitoring • ML price forecasting • Intelligent decision support
           </p>
           <p className="text-sm text-white/60">
             © 2026 AgriSmart. All rights reserved.
