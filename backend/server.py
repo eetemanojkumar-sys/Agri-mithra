@@ -1127,6 +1127,24 @@ async def analyze_agricultural_conditions(request: AgriAnalysisRequest):
 # Include the router in the main app
 app.include_router(api_router)
 
+# Root route for health check
+@app.get("/")
+async def health_check():
+    return {
+        "status": "Backend running",
+        "service": "AgriSmart API",
+        "version": "1.0.0",
+        "endpoints": {
+            "api": "/api/",
+            "crops": "/api/crops",
+            "analysis": "/api/agri-analysis",
+            "prices": "/api/commodity-prices/{crop}",
+            "motor": "/api/motor/control",
+            "thingspeak": "/api/thingspeak/fetch"
+        }
+    }
+
+# CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -1142,6 +1160,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Serverless cleanup (optional, not critical for Vercel)
 @app.on_event("shutdown")
 async def shutdown_db_client():
-    client.close()
+    global _client
+    if _client is not None:
+        _client.close()
+        _client = None
