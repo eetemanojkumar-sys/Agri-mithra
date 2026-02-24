@@ -6,22 +6,31 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import uuid
 from datetime import datetime, timezone
 import httpx
 
 
+# Load environment variables
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# MongoDB connection (lazy initialization for serverless)
+_client: Optional[AsyncIOMotorClient] = None
+_db = None
 
-# Create the main app without a prefix
-app = FastAPI()
+def get_database():
+    """Lazy database connection for serverless compatibility"""
+    global _client, _db
+    if _client is None:
+        mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+        _client = AsyncIOMotorClient(mongo_url)
+        _db = _client[os.environ.get('DB_NAME', 'agrismart')]
+    return _db
+
+# Create the main app
+app = FastAPI(title="AgriSmart API", version="1.0.0")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
