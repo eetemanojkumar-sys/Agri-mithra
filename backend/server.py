@@ -254,10 +254,11 @@ COMMODITY_DATA = {
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
-    return {"message": "AgriSmart API v1.0", "status": "active"}
+    return {"status": "AgriSmart API running", "version": "1.0", "message": "Active"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
+    db = get_database()
     status_dict = input.model_dump()
     status_obj = StatusCheck(**status_dict)
     
@@ -269,6 +270,7 @@ async def create_status_check(input: StatusCheckCreate):
 
 @api_router.get("/status", response_model=List[StatusCheck])
 async def get_status_checks():
+    db = get_database()
     status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
     
     for check in status_checks:
