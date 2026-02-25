@@ -158,7 +158,7 @@ function App() {
 
   const connectThingSpeak = async () => {
     if (!channelId || !apiKey) {
-      alert("Please enter both Channel ID and API Key");
+      alert("Please enter both Channel ID and Read API Key");
       return;
     }
 
@@ -174,6 +174,24 @@ function App() {
         setIsLiveMode(true);
         setConnectionMode("live");
         setLastUpdated(new Date());
+
+        // Configure ThingSpeak Write for motor control if write key provided
+        if (writeApiKey && writeApiKey.trim()) {
+          try {
+            const writeResponse = await axios.post(`${API}/motor/configure-thingspeak`, {
+              channel_id: channelId,
+              write_api_key: writeApiKey,
+              motor_field: 5, // Field 5 for motor control
+            });
+
+            if (writeResponse.data.success) {
+              setHardwareControlEnabled(true);
+              console.log("Hardware motor control enabled via ThingSpeak");
+            }
+          } catch (writeError) {
+            console.error("Failed to enable hardware control:", writeError);
+          }
+        }
 
         // Start polling every 20 seconds
         if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
@@ -203,13 +221,22 @@ function App() {
   const startSimulator = () => {
     setConnectionMode("simulator");
     setIsLiveMode(false);
+    setHardwareControlEnabled(false);
     if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
   };
 
-  const disconnectSensor = () => {
+  const disconnectSensor = async () => {
     setConnectionMode("offline");
     setIsLiveMode(false);
+    setHardwareControlEnabled(false);
     if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    
+    // Disable ThingSpeak write
+    try {
+      await axios.post(`${API}/motor/disconnect-thingspeak`);
+    } catch (error) {
+      console.error("Error disconnecting ThingSpeak:", error);
+    }
   };
 
   const toggleMotor = async () => {
