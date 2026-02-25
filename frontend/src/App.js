@@ -581,9 +581,17 @@ function App() {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <Power className="h-8 w-8 text-primary" />
-                  <h3 className="text-xl font-outfit font-bold text-primary">
-                    Motor Control
-                  </h3>
+                  <div>
+                    <h3 className="text-xl font-outfit font-bold text-primary">
+                      Motor Control
+                    </h3>
+                    {hardwareControlEnabled && (
+                      <span className="text-xs text-green-600 font-semibold flex items-center gap-1 mt-1">
+                        <Zap className="h-3 w-3" />
+                        Hardware Control Active
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-3">
                   {motorRunning && (
@@ -610,9 +618,18 @@ function App() {
                 </div>
                 <p className="text-sm text-foreground/70">
                   {motorRunning
-                    ? "Irrigation system is active"
+                    ? hardwareControlEnabled
+                      ? "External motor is ON via ThingSpeak"
+                      : "Irrigation system active (UI simulation)"
+                    : hardwareControlEnabled
+                    ? "External motor is OFF"
                     : "Toggle switch to start irrigation"}
                 </p>
+                {!hardwareControlEnabled && connectionMode === "offline" && (
+                  <p className="text-xs text-accent mt-3">
+                    ⚠️ Connect ThingSpeak with Write API Key to control real hardware
+                  </p>
+                )}
               </div>
             </Card>
 
