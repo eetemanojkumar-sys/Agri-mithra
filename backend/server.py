@@ -107,6 +107,82 @@ thingspeak_write_config = {
     "motor_field": 5  # Field number for motor state in ThingSpeak
 }
 
+async def send_motor_command_to_thingspeak(state: str) -> dict:
+    """
+    Send motor control command to ThingSpeak
+    Returns: {"success": bool, "message": str}
+    """
+    global thingspeak_write_config
+    
+    if not thingspeak_write_config.get("enabled", False):
+        return {
+            "success": False,
+            "message": "ThingSpeak write not configured",
+            "hardware_control": False
+        }
+    
+    try:
+        channel_id = thingspeak_write_config.get("channel_id")
+        write_key = thingspeak_write_config.get("write_api_key")
+        motor_field = thingspeak_write_config.get("motor_field", 5)
+        
+        if not channel_id or not write_key:
+            return {
+                "success": False,
+                "message": "Missing ThingSpeak credentials",
+                "hardware_control": False
+            }
+        
+        # Convert state to numeric value (1=ON, 0=OFF)
+        motor_value = 1 if state == "ON" else 0
+        
+        # ThingSpeak Write API URL
+        url = f"https://api.thingspeak.com/update"
+        
+        # Prepare data - send to specified field
+        params = {
+            "api_key": write_key,
+            f"field{motor_field}": motor_value
+        }
+        
+        # Send command to ThingSpeak
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url, params=params)
+            
+            # ThingSpeak returns entry number on success, 0 on failure
+            entry_number = int(response.text.strip())
+            
+            if entry_number > 0:
+                logger.info(f"Motor command sent to ThingSpeak: {state} (entry: {entry_number})")
+                return {
+                    "success": True,
+                    "message": f"Hardware motor commanded to {state}",
+                    "hardware_control": True,
+                    "thingspeak_entry": entry_number
+                }
+            else:
+                logger.warning(f"ThingSpeak write failed: {response.text}")
+                return {
+                    "success": False,
+                    "message": "ThingSpeak write rejected",
+                    "hardware_control": False
+                }
+    
+    except httpx.TimeoutException:
+        logger.error("ThingSpeak write timeout")
+        return {
+            "success": False,
+            "message": "ThingSpeak timeout",
+            "hardware_control": False
+        }
+    except Exception as e:
+        logger.error(f"ThingSpeak write error: {str(e)}")
+        return {
+            "success": False,
+            "message": f"ThingSpeak error: {str(e)}",
+            "hardware_control": False
+        }
+
 # Crop-specific thresholds and characteristics
 CROP_PROFILES = {
     "rice": {
