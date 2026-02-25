@@ -213,12 +213,19 @@ function App() {
   const toggleMotor = async () => {
     try {
       const newStatus = !motorRunning;
-      await axios.post(`${API}/motor/control`, {
-        status: newStatus ? "on" : "off",
+      const response = await axios.post(`${API}/motor`, {
+        state: newStatus ? "ON" : "OFF",
       });
-      setMotorRunning(newStatus);
+      
+      if (response.data.success) {
+        setMotorRunning(newStatus);
+      } else {
+        console.error("Motor control failed:", response.data.error);
+        alert(`Motor control failed: ${response.data.message || response.data.error}`);
+      }
     } catch (error) {
       console.error("Motor control error:", error);
+      alert("Failed to control motor. Please try again.");
     }
   };
 
