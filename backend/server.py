@@ -473,17 +473,30 @@ async def control_motor_v2(request: dict):
         motor_state["last_updated"] = current_time
         motor_state["previous_state"] = previous_state
         
+        # Send command to ThingSpeak (external hardware control)
+        thingspeak_result = await send_motor_command_to_thingspeak(requested_state)
+        
         # Log successful state change
         logger.info(f"Motor state changed: {previous_state} → {requested_state}")
         
-        # Return success response
-        return {
+        # Return success response with hardware control status
+        response = {
             "success": True,
             "motorState": requested_state,
             "message": f"Motor turned {requested_state}",
             "timestamp": current_time,
-            "previousState": previous_state
+            "previousState": previous_state,
+            "hardwareControl": thingspeak_result.get("hardware_control", False)
         }
+        
+        # Add ThingSpeak info if applicable
+        if thingspeak_result.get("hardware_control"):
+            response["thingspeakEntry"] = thingspeak_result.get("thingspeak_entry")
+            response["hardwareMessage"] = "Command sent to external motor via ThingSpeak"
+        else:
+            response["hardwareMessage"] = thingspeak_result.get("message", "UI simulation only")
+        
+        return response
     
     except KeyError as e:
         # Handle missing keys
