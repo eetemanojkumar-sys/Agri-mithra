@@ -582,7 +582,99 @@ async def get_motor_info():
                 "message": "Motor turned ON"
             }
         },
-        "valid_states": ["ON", "OFF"]
+        "valid_states": ["ON", "OFF"],
+        "hardware_control": thingspeak_write_config.get("enabled", False),
+        "thingspeak_configured": thingspeak_write_config.get("enabled", False)
+    }
+
+@api_router.post("/motor/configure-thingspeak")
+async def configure_thingspeak_write(config: ThingSpeakWriteConfig):
+    """
+    Configure ThingSpeak for external motor control
+    Endpoint: POST /api/motor/configure-thingspeak
+    Body: {
+        "channel_id": "your_channel_id",
+        "write_api_key": "your_write_key",
+        "motor_field": 5
+    }
+    """
+    global thingspeak_write_config
+    
+    try:
+        # Validate credentials by attempting a test write
+        test_url = f"https://api.thingspeak.com/update"
+        test_params = {
+            "api_key": config.write_api_key,
+            f"field{config.motor_field}": 0  # Test with OFF state
+        }
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(test_url, params=test_params)
+            entry_number = int(response.text.strip())
+            
+            if entry_number > 0:
+                # Configuration valid, save it
+                thingspeak_write_config["enabled"] = True
+                thingspeak_write_config["channel_id"] = config.channel_id
+                thingspeak_write_config["write_api_key"] = config.write_api_key
+                thingspeak_write_config["motor_field"] = config.motor_field
+                
+                logger.info(f"ThingSpeak write configured: Channel {config.channel_id}, Field {config.motor_field}")
+                
+                return {
+                    "success": True,
+                    "message": "ThingSpeak write configured successfully",
+                    "hardware_control_enabled": True,
+                    "channel_id": config.channel_id,
+                    "motor_field": config.motor_field,
+                    "test_entry": entry_number
+                }
+            else:
+                return {
+                    "success": False,
+                    "message": "Invalid ThingSpeak credentials",
+                    "error": "Write API key rejected by ThingSpeak"
+                }
+    
+    except httpx.TimeoutException:
+        return {
+            "success": False,
+            "message": "ThingSpeak connection timeout",
+            "error": "Could not reach ThingSpeak API"
+        }
+    except Exception as e:
+        logger.error(f"ThingSpeak configuration error: {str(e)}")
+        return {
+            "success": False,
+            "message": "Configuration failed",
+            "error": str(e)
+        }
+
+@api_router.post("/motor/disconnect-thingspeak")
+async def disconnect_thingspeak_write():
+    """Disable ThingSpeak hardware control"""
+    global thingspeak_write_config
+    
+    thingspeak_write_config["enabled"] = False
+    thingspeak_write_config["channel_id"] = None
+    thingspeak_write_config["write_api_key"] = None
+    
+    logger.info("ThingSpeak write disabled")
+    
+    return {
+        "success": True,
+        "message": "ThingSpeak hardware control disabled",
+        "hardware_control_enabled": False
+    }
+
+@api_router.get("/motor/thingspeak-status")
+async def get_thingspeak_write_status():
+    """Get ThingSpeak write configuration status"""
+    return {
+        "enabled": thingspeak_write_config.get("enabled", False),
+        "channel_id": thingspeak_write_config.get("channel_id", "Not configured"),
+        "motor_field": thingspeak_write_config.get("motor_field", 5),
+        "write_key_configured": bool(thingspeak_write_config.get("write_api_key"))
     }
 
 @api_router.get("/commodity-prices/{crop}")
