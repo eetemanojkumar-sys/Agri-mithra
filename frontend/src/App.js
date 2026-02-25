@@ -62,10 +62,12 @@ function App() {
   // ThingSpeak configuration
   const [channelId, setChannelId] = useState("");
   const [apiKey, setApiKey] = useState("");
+  const [writeApiKey, setWriteApiKey] = useState("");
   const [isLiveMode, setIsLiveMode] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [connecting, setConnecting] = useState(false);
   const [connectionMode, setConnectionMode] = useState("offline"); // "offline", "simulator", "live"
+  const [hardwareControlEnabled, setHardwareControlEnabled] = useState(false);
 
   // Commodity price state
   const [selectedCrop, setSelectedCrop] = useState("rice");
