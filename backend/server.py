@@ -52,7 +52,14 @@ class ThingSpeakRequest(BaseModel):
     read_api_key: str
 
 class MotorControlRequest(BaseModel):
-    status: str  # "on" or "off"
+    state: str  # "ON" or "OFF"
+
+class MotorResponse(BaseModel):
+    success: bool
+    motorState: str
+    message: str = ""
+    timestamp: str = ""
+    error: str = ""
 
 class CommodityPrice(BaseModel):
     crop: str
