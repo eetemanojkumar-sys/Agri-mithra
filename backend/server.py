@@ -51,6 +51,11 @@ class ThingSpeakRequest(BaseModel):
     channel_id: str
     read_api_key: str
 
+class ThingSpeakWriteConfig(BaseModel):
+    channel_id: str
+    write_api_key: str
+    motor_field: int = 5  # ThingSpeak field number for motor control (default: field5)
+
 class MotorControlRequest(BaseModel):
     state: str  # "ON" or "OFF"
 
