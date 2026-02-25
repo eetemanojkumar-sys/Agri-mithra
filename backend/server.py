@@ -87,8 +87,12 @@ class AgriAnalysisResponse(BaseModel):
     corrective_actions: List[str]
     alerts: List[Dict[str, Any]]
 
-# Motor state (in-memory for demo)
-motor_state = {"status": "off", "last_updated": datetime.now(timezone.utc).isoformat()}
+# Motor state (in-memory for serverless - thread-safe)
+motor_state = {
+    "state": "OFF",
+    "last_updated": datetime.now(timezone.utc).isoformat(),
+    "uptime_seconds": 0
+}
 
 # Crop-specific thresholds and characteristics
 CROP_PROFILES = {
