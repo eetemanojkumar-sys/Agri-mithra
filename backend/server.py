@@ -329,30 +329,159 @@ async def fetch_thingspeak_data(request: ThingSpeakRequest):
         logging.error(f"ThingSpeak fetch error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-@api_router.post("/motor/control")
-async def control_motor(request: MotorControlRequest):
-    """Control motor on/off (UI simulation)"""
+@api_router.post("/motor")
+async def control_motor_v2(request: dict):
+    """
+    Robust motor control API - Cloud deployment ready
+    Endpoint: POST /api/motor
+    Body: {"state": "ON"} or {"state": "OFF"}
+    """
     global motor_state
     
-    if request.status not in ["on", "off"]:
-        raise HTTPException(status_code=400, detail="Status must be 'on' or 'off'")
+    try:
+        # Log incoming request for debugging
+        logger.info(f"Motor control request received: {request}")
+        
+        # Validate request body exists
+        if not request:
+            logger.warning("Motor control called with empty request body")
+            return {
+                "success": False,
+                "motorState": motor_state.get("state", "OFF"),
+                "error": "Missing request body",
+                "message": "Request body is required"
+            }
+        
+        # Validate 'state' field exists
+        if "state" not in request:
+            logger.warning(f"Motor control missing 'state' field: {request}")
+            return {
+                "success": False,
+                "motorState": motor_state.get("state", "OFF"),
+                "error": "Missing motor state",
+                "message": "Field 'state' is required in request body"
+            }
+        
+        # Get and normalize state value
+        requested_state = str(request.get("state", "")).upper().strip()
+        
+        # Validate state value
+        valid_states = ["ON", "OFF"]
+        if requested_state not in valid_states:
+            logger.warning(f"Invalid motor state requested: {requested_state}")
+            return {
+                "success": False,
+                "motorState": motor_state.get("state", "OFF"),
+                "error": f"Invalid state: {request.get('state')}",
+                "message": f"State must be one of: {', '.join(valid_states)}"
+            }
+        
+        # Update motor state (thread-safe for serverless)
+        previous_state = motor_state.get("state", "OFF")
+        current_time = datetime.now(timezone.utc).isoformat()
+        
+        motor_state["state"] = requested_state
+        motor_state["last_updated"] = current_time
+        motor_state["previous_state"] = previous_state
+        
+        # Log successful state change
+        logger.info(f"Motor state changed: {previous_state} → {requested_state}")
+        
+        # Return success response
+        return {
+            "success": True,
+            "motorState": requested_state,
+            "message": f"Motor turned {requested_state}",
+            "timestamp": current_time,
+            "previousState": previous_state
+        }
     
-    motor_state = {
-        "status": request.status,
-        "last_updated": datetime.now(timezone.utc).isoformat()
-    }
+    except KeyError as e:
+        # Handle missing keys
+        logger.error(f"KeyError in motor control: {str(e)}")
+        return {
+            "success": False,
+            "motorState": motor_state.get("state", "OFF"),
+            "error": f"Missing field: {str(e)}",
+            "message": "Invalid request structure"
+        }
     
-    return {
-        "success": True,
-        "motor_status": motor_state["status"],
-        "message": f"Motor turned {request.status}",
-        "timestamp": motor_state["last_updated"]
-    }
+    except ValueError as e:
+        # Handle value conversion errors
+        logger.error(f"ValueError in motor control: {str(e)}")
+        return {
+            "success": False,
+            "motorState": motor_state.get("state", "OFF"),
+            "error": f"Invalid value: {str(e)}",
+            "message": "Could not process request value"
+        }
+    
+    except Exception as e:
+        # Catch-all for unexpected errors
+        logger.error(f"Unexpected error in motor control: {str(e)}", exc_info=True)
+        return {
+            "success": False,
+            "motorState": motor_state.get("state", "OFF"),
+            "error": "Internal server error",
+            "message": f"An unexpected error occurred: {str(e)}"
+        }
 
 @api_router.get("/motor/status")
-async def get_motor_status():
-    """Get current motor status"""
-    return motor_state
+async def get_motor_status_v2():
+    """
+    Get current motor status
+    Endpoint: GET /api/motor/status
+    """
+    try:
+        logger.info("Motor status requested")
+        return {
+            "success": True,
+            "motorState": motor_state.get("state", "OFF"),
+            "lastUpdated": motor_state.get("last_updated", ""),
+            "previousState": motor_state.get("previous_state", "OFF")
+        }
+    except Exception as e:
+        logger.error(f"Error getting motor status: {str(e)}")
+        return {
+            "success": False,
+            "motorState": "OFF",
+            "error": str(e)
+        }
+
+# Legacy endpoints for backward compatibility
+@api_router.post("/motor/control")
+async def control_motor_legacy(request: dict):
+    """Legacy endpoint - redirects to /api/motor"""
+    try:
+        # Map old 'status' field to new 'state' field
+        if "status" in request and "state" not in request:
+            request["state"] = request["status"].upper()
+        return await control_motor_v2(request)
+    except Exception as e:
+        logger.error(f"Error in legacy motor control: {str(e)}")
+        return {
+            "success": False,
+            "motorState": "OFF",
+            "error": str(e)
+        }
+
+@api_router.get("/motor")
+async def get_motor_info():
+    """Get motor API information"""
+    return {
+        "endpoint": "/api/motor",
+        "method": "POST",
+        "description": "Control irrigation motor (ON/OFF)",
+        "example": {
+            "request": {"state": "ON"},
+            "response": {
+                "success": True,
+                "motorState": "ON",
+                "message": "Motor turned ON"
+            }
+        },
+        "valid_states": ["ON", "OFF"]
+    }
 
 @api_router.get("/commodity-prices/{crop}")
 async def get_commodity_prices(crop: str):
