@@ -99,6 +99,14 @@ motor_state = {
     "uptime_seconds": 0
 }
 
+# ThingSpeak write configuration (for motor control)
+thingspeak_write_config = {
+    "enabled": False,
+    "channel_id": None,
+    "write_api_key": None,
+    "motor_field": 5  # Field number for motor state in ThingSpeak
+}
+
 # Crop-specific thresholds and characteristics
 CROP_PROFILES = {
     "rice": {
