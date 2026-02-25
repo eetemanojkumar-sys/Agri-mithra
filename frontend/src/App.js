@@ -984,6 +984,24 @@ function App() {
                   className="h-12"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                  Write API Key (Optional - For Motor Control)
+                  <Power className="h-4 w-4 text-accent" />
+                </label>
+                <Input
+                  data-testid="write-api-key-input"
+                  type="text"
+                  placeholder="Enter Write API Key for motor control"
+                  value={writeApiKey}
+                  onChange={(e) => setWriteApiKey(e.target.value)}
+                  disabled={connectionMode === "live"}
+                  className="h-12"
+                />
+                <p className="text-xs text-foreground/60 mt-1">
+                  Enable this to control external motor/pump via ThingSpeak
+                </p>
+              </div>
               <div className="flex gap-3">
                 <Button
                   data-testid="connect-btn"
