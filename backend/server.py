@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+import json
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
@@ -1256,6 +1257,64 @@ async def analyze_agricultural_conditions(request: AgriAnalysisRequest):
         "corrective_actions": corrective_actions,
         "alerts": alerts
     }
+
+class AquaGuardReading(BaseModel):
+    moisture: float = Field(ge=0, le=100)
+    temperature: float = Field(ge=-20, le=70)
+    humidity: float = Field(ge=0, le=100)
+    rain: float = Field(default=0, ge=0, le=100)
+    crop: str = "general"
+
+@api_router.post("/aquaguard/analyze")
+async def aquaguard_analyze(reading: AquaGuardReading):
+    """Explainable, rule-based water and heat risk assessment from current sensor readings."""
+    moisture, temperature, humidity, rain = reading.moisture, reading.temperature, reading.humidity, reading.rain
+    crop = reading.crop.strip().lower() or "general"
+    moisture_thresholds = {
+        "rice": 60, "wheat": 40, "millets": 25, "cotton": 50, "groundnut": 35,
+        "sugarcane": 65, "maize": 45, "vegetables": 50, "sorghum": 30, "onion": 45, "tomato": 50,
+    }
+    moisture_trigger = moisture_thresholds.get(crop, 35)
+    heat_risk = "critical" if temperature >= 40 else "high" if temperature >= 35 else "moderate" if temperature >= 30 else "low"
+    water_risk = "high" if moisture < moisture_trigger and rain < 35 else "moderate" if moisture < moisture_trigger or (temperature >= 35 and humidity < 35) else "low"
+    risk_score = min(100, max(0, round(max(0, moisture_trigger - moisture) * 1.4 + max(0, temperature - 30) * 3 + max(0, 35 - humidity) * 0.5 - rain * 0.35)))
+    actions = []
+    if moisture < moisture_trigger and rain < 35:
+        actions.append("Check root-zone soil and schedule a measured irrigation cycle.")
+    elif rain >= 60:
+        actions.append("Delay irrigation and recheck soil moisture after rainfall.")
+    else:
+        actions.append("Continue monitoring soil moisture before irrigating.")
+    if temperature >= 35:
+        actions.append("Check for heat stress and irrigate during cooler hours only if watering is needed.")
+    if humidity < 30 and temperature >= 35:
+        actions.append("High evaporative demand is possible; inspect plants and soil more frequently.")
+    return {
+        "service": "AquaGuard", "assessment_type": "rule_based_demo",
+        "inputs": {"moisture": moisture, "temperature": temperature, "humidity": humidity, "rain": rain, "crop": crop},
+        "risk_score": risk_score, "water_risk": water_risk, "heat_risk": heat_risk,
+        "irrigation_recommended": moisture < moisture_trigger and rain < 35,
+        "moisture_trigger_percent": moisture_trigger, "actions": actions,
+        "disclaimer": "Advisory only. Validate thresholds for local soil, crop stage, sensor calibration, and agronomist guidance."
+    }
+
+@api_router.post("/aquaguard/telemetry")
+async def aquaguard_archive(reading: AquaGuardReading):
+    """Optionally archive a reading to S3 using the AWS SDK default credential chain."""
+    bucket = os.environ.get("AQUAGUARD_S3_BUCKET")
+    if not bucket:
+        return {"success": False, "archived": False, "message": "S3 is not configured. Set AQUAGUARD_S3_BUCKET and AWS_REGION and grant s3:PutObject to the runtime role."}
+    try:
+        import boto3
+        region = os.environ.get("AWS_REGION") or os.environ.get("AWS_DEFAULT_REGION") or "ap-south-1"
+        timestamp = datetime.now(timezone.utc).isoformat()
+        payload = {"timestamp": timestamp, "moisture": reading.moisture, "temperature": reading.temperature, "humidity": reading.humidity, "rain": reading.rain, "crop": reading.crop}
+        key = "aquaguard/telemetry/" + datetime.now(timezone.utc).strftime("%Y/%m/%d/") + str(uuid.uuid4()) + ".json"
+        boto3.client("s3", region_name=region).put_object(Bucket=bucket, Key=key, Body=json.dumps(payload).encode("utf-8"), ContentType="application/json", ServerSideEncryption="AES256")
+        return {"success": True, "archived": True, "bucket": bucket, "key": key, "timestamp": timestamp}
+    except Exception:
+        logger.exception("AquaGuard S3 archive failed")
+        raise HTTPException(status_code=503, detail="Could not archive telemetry to S3. Check region, bucket, and IAM permissions.")
 
 # Include the router in the main app
 app.include_router(api_router)
