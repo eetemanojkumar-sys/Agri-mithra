@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import axios from "axios";
+import AquaGuardPanel from "@/components/AquaGuardPanel";
 
 ChartJS.register(
   CategoryScale,
@@ -1269,6 +1270,8 @@ function App() {
           )}
         </div>
       </section>
+
+      <AquaGuardPanel api={API} sensorData={sensorData} selectedCrop={selectedAnalysisCrop || selectedCrop} />
 
       {/* Footer */}
       <footer className="bg-primary text-white py-12">
